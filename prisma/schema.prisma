@@ -7,35 +7,29 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Signal {
+  id          String    @id @default(cuid())
+  pair        String    @unique
+  assetType   AssetType
+  direction   String
+  entry       Float
+  takeProfit  Float
+  stopLoss    Float
+  signalTime  DateTime
+  lockedUntil DateTime
+  createdAt   DateTime  @default(now())
+  high        Float
+  low         Float
+  lowerBand   Float
+  rsi         Float
+  stochasticK Float
+  updatedAt   DateTime  @updatedAt
+  upperBand   Float
+}
+
 enum AssetType {
   FOREX
   INDICES
   GOLD
   CRYPTO
-}
-
-model Signal {
-  id            String    @id @default(cuid())
-
-  pair          String    @unique
-  assetType     AssetType
-
-  direction     String
-
-  entry         Float
-  takeProfit    Float
-  stopLoss      Float
-
-  signalTime    DateTime
-  lockedUntil   DateTime
-
-  rsi           Float
-  stochasticK   Float
-  upperBand     Float
-  lowerBand     Float
-  high          Float
-  low           Float
-
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
 }

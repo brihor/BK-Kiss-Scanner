@@ -5,7 +5,9 @@ import { AssetType } from "@prisma/client";
 function getAssetType(symbol: string): AssetType {
   const s = symbol.toUpperCase();
 
-  if (s === "XAUUSD") return AssetType.GOLD;
+  if (s === "XAUUSD" || s === "XAGUSD") {
+    return AssetType.GOLD;
+  }
 
   if (
     s.includes("BTC") ||
@@ -42,18 +44,21 @@ export async function POST(req: NextRequest) {
         direction: body.action,
 
         entry: body.price,
-
         takeProfit: body.price,
-
         stopLoss: body.price,
-
-        session: "Unknown",
 
         signalTime: new Date(),
 
-        lockedUntil: new Date(Date.now() + 15 * 60 * 1000),
+        lockedUntil: new Date(
+          Date.now() + 15 * 60 * 1000
+        ),
 
-        strength: 100,
+        rsi: body.rsi ?? 0,
+        stochasticK: body.stochasticK ?? 0,
+        upperBand: body.upperBand ?? 0,
+        lowerBand: body.lowerBand ?? 0,
+        high: body.high ?? body.price,
+        low: body.low ?? body.price,
       },
     });
 
