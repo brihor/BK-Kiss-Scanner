@@ -22,19 +22,19 @@ export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [soundEnabled, setSoundEnabled] = useState(true);
 
-useEffect(() => {
-  const saved = localStorage.getItem("bk-sound-enabled");
-  if (saved !== null) {
-    setSoundEnabled(saved === "true");
-  }
-}, []);
+  useEffect(() => {
+    const saved = localStorage.getItem("bk-sound-enabled");
+    if (saved !== null) {
+      setSoundEnabled(saved === "true");
+    }
+  }, []);
 
-useEffect(() => {
-  localStorage.setItem(
-    "bk-sound-enabled",
-    String(soundEnabled)
-  );
-}, [soundEnabled]);
+  useEffect(() => {
+    localStorage.setItem(
+      "bk-sound-enabled",
+      String(soundEnabled)
+    );
+  }, [soundEnabled]);
 
   function handleNotificationCategory(
     category: Exclude<FilterType, "ALL">
