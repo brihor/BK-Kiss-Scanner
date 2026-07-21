@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum AssetType {
+  FOREX
+  INDICES
+  GOLD
+  CRYPTO
+}
+
+model Signal {
+  id           String    @id @default(cuid())
+
+  pair          String
+  assetType     AssetType
+
+  direction     String
+
+  entry         Float
+  takeProfit    Float
+  stopLoss      Float
+
+  session       String
+
+  signalTime    DateTime
+  lockedUntil   DateTime
+
+  strength      Int
+}

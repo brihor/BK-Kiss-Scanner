@@ -1,11 +1,24 @@
-export default function Home() {
+import Header from "@/components/Header";
+import SessionBar from "@/components/SessionBar";
+import SearchFilterBar from "@/components/SearchFilterBar";
+import StatsBar from "@/components/StatsBar";
+import ScannerTable from "@/components/ScannerTable";
+
+export default function DashboardPage() {
   return (
-    <main className="min-h-screen bg-gray-950 text-white">
-      <div className="max-w-7xl mx-auto p-8">
-        <h1 className="text-4xl font-bold">BK KiSS Scanner 💋</h1>
-        <p className="mt-2 text-gray-400">
-          Real-Time Trading Opportunities Powered by KiSS 💋
-        </p>
+    <main className="min-h-screen bg-[#050607] p-8">
+      <div className="mx-auto max-w-[1600px] space-y-6">
+
+        <Header />
+
+        <SessionBar />
+
+        <StatsBar />
+
+        <SearchFilterBar />
+
+        <ScannerTable />
+
       </div>
     </main>
   );
