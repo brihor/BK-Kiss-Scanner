@@ -32,11 +32,13 @@ export async function GET() {
       const scannedSignal of scannerSignals
     ) {
       const existingSignal =
-        findSignal(scannedSignal.pair);
+        await findSignal(
+          scannedSignal.pair
+        );
 
       if (!existingSignal) {
         const newSignal: Signal = {
-          id: `${scannedSignal.pair}-${scannedSignal.direction}-${now}`,
+          id: "",
 
           pair: scannedSignal.pair,
 
@@ -84,7 +86,7 @@ export async function GET() {
             scannedSignal.low,
         };
 
-        addSignal(newSignal);
+        await addSignal(newSignal);
 
         continue;
       }
@@ -101,8 +103,6 @@ export async function GET() {
 
       const refreshedSignal: Signal = {
         ...existingSignal,
-
-        id: `${scannedSignal.pair}-${scannedSignal.direction}-${now}`,
 
         direction:
           scannedSignal.direction,
@@ -148,13 +148,16 @@ export async function GET() {
           scannedSignal.low,
       };
 
-      updateSignal(refreshedSignal);
+      await updateSignal(
+        refreshedSignal
+      );
     }
 
+    const storedSignals =
+      await getSignals();
+
     for (
-      const storedSignal of [
-        ...getSignals(),
-      ]
+      const storedSignal of storedSignals
     ) {
       const lockExpired =
         now >=
@@ -168,27 +171,29 @@ export async function GET() {
           storedSignal.pair
         )
       ) {
-        removeSignal(
+        await removeSignal(
           storedSignal.pair
         );
       }
     }
 
     const activeSignals =
-      getSignals().map((signal) => ({
-        ...signal,
+      (await getSignals()).map(
+        (signal) => ({
+          ...signal,
 
-        ageMinutes: Math.max(
-          0,
-          Math.floor(
-            (now -
-              new Date(
-                signal.signalTime
-              ).getTime()) /
-              60000
-          )
-        ),
-      }));
+          ageMinutes: Math.max(
+            0,
+            Math.floor(
+              (now -
+                new Date(
+                  signal.signalTime
+                ).getTime()) /
+                60000
+            )
+          ),
+        })
+      );
 
     return NextResponse.json(
       activeSignals

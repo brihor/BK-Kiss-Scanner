@@ -1,41 +1,133 @@
+import { prisma } from "@/lib/prisma";
+import { AssetType, type Signal as PrismaSignal } from "@prisma/client";
 import type { Signal } from "@/types/signal";
 
-const globalSignalStore = globalThis as typeof globalThis & {
-  bkKissSignals?: Signal[];
-};
+function toSignal(signal: PrismaSignal): Signal {
+  return {
+    id: signal.id,
+    pair: signal.pair,
+    direction: signal.direction as "BUY" | "SELL",
+    signal: signal.direction as "BUY" | "SELL",
 
-const signals =
-  globalSignalStore.bkKissSignals ??
-  (globalSignalStore.bkKissSignals = []);
+    entry: signal.entry,
+    takeProfit: signal.takeProfit,
+    stopLoss: signal.stopLoss,
 
-export function getSignals(): Signal[] {
-  return signals;
+    signalTime: signal.signalTime.toISOString(),
+    lockedUntil: signal.lockedUntil.toISOString(),
+
+    ageMinutes: 0,
+
+    rsi: signal.rsi,
+    stochasticK: signal.stochasticK,
+    upperBand: signal.upperBand,
+    lowerBand: signal.lowerBand,
+    high: signal.high,
+    low: signal.low,
+  };
 }
 
-export function findSignal(pair: string): Signal | undefined {
-  return signals.find((signal) => signal.pair === pair);
-}
+function getAssetType(pair: string): AssetType {
+  const p = pair.toUpperCase();
 
-export function addSignal(signal: Signal): void {
-  signals.unshift(signal);
-}
-
-export function updateSignal(updatedSignal: Signal): void {
-  const index = signals.findIndex(
-    (signal) => signal.pair === updatedSignal.pair
-  );
-
-  if (index !== -1) {
-    signals[index] = updatedSignal;
+  if (p.startsWith("XAU") || p.startsWith("XAG")) {
+    return AssetType.GOLD;
   }
+
+  if (
+    p === "NAS100" ||
+    p === "NAS100USD" ||
+    p === "US30" ||
+    p === "US30USD"
+  ) {
+    return AssetType.INDICES;
+  }
+
+  return AssetType.FOREX;
 }
 
-export function removeSignal(pair: string): void {
-  const index = signals.findIndex(
-    (signal) => signal.pair === pair
-  );
+export async function getSignals(): Promise<Signal[]> {
+  const signals = await prisma.signal.findMany({
+    orderBy: {
+      signalTime: "desc",
+    },
+  });
 
-  if (index !== -1) {
-    signals.splice(index, 1);
-  }
+  return signals.map(toSignal);
+}
+
+export async function findSignal(
+  pair: string
+): Promise<Signal | undefined> {
+  const signal = await prisma.signal.findUnique({
+    where: {
+      pair,
+    },
+  });
+
+  return signal ? toSignal(signal) : undefined;
+}
+
+export async function addSignal(
+  signal: Signal
+): Promise<void> {
+  await prisma.signal.create({
+    data: {
+      pair: signal.pair,
+      assetType: getAssetType(signal.pair),
+
+      direction: signal.direction,
+
+      entry: signal.entry,
+      takeProfit: signal.takeProfit,
+      stopLoss: signal.stopLoss,
+
+      signalTime: new Date(signal.signalTime),
+      lockedUntil: new Date(signal.lockedUntil),
+
+      rsi: signal.rsi,
+      stochasticK: signal.stochasticK,
+      upperBand: signal.upperBand,
+      lowerBand: signal.lowerBand,
+      high: signal.high,
+      low: signal.low,
+    },
+  });
+}
+
+export async function updateSignal(
+  signal: Signal
+): Promise<void> {
+  await prisma.signal.update({
+    where: {
+      pair: signal.pair,
+    },
+    data: {
+      direction: signal.direction,
+
+      entry: signal.entry,
+      takeProfit: signal.takeProfit,
+      stopLoss: signal.stopLoss,
+
+      signalTime: new Date(signal.signalTime),
+      lockedUntil: new Date(signal.lockedUntil),
+
+      rsi: signal.rsi,
+      stochasticK: signal.stochasticK,
+      upperBand: signal.upperBand,
+      lowerBand: signal.lowerBand,
+      high: signal.high,
+      low: signal.low,
+    },
+  });
+}
+
+export async function removeSignal(
+  pair: string
+): Promise<void> {
+  await prisma.signal.delete({
+    where: {
+      pair,
+    },
+  });
 }

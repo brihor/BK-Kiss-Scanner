@@ -15,9 +15,9 @@ enum AssetType {
 }
 
 model Signal {
-  id           String    @id @default(cuid())
+  id            String    @id @default(cuid())
 
-  pair          String
+  pair          String    @unique
   assetType     AssetType
 
   direction     String
@@ -26,10 +26,16 @@ model Signal {
   takeProfit    Float
   stopLoss      Float
 
-  session       String
-
   signalTime    DateTime
   lockedUntil   DateTime
 
-  strength      Int
+  rsi           Float
+  stochasticK   Float
+  upperBand     Float
+  lowerBand     Float
+  high          Float
+  low           Float
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
