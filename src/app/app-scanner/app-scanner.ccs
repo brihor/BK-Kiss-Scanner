@@ -1,0 +1,294 @@
+/* BK KiSS Scanner - Native App Landscape Layout */
+
+.app-scanner-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #03070d;
+}
+
+/* Keep the dashboard compact */
+.app-scanner-page .dashboard-page {
+  width: 100%;
+  min-width: 0;
+  padding: 5px;
+  box-sizing: border-box;
+}
+
+.app-scanner-page .dashboard-shell {
+  width: 100%;
+  max-width: none;
+  gap: 5px;
+}
+
+/* HEADER */
+
+.app-scanner-page .bk-header {
+  min-height: 68px;
+  height: 68px;
+  grid-template-columns: 190px minmax(0, 1fr) 105px;
+  gap: 6px;
+  padding: 0 12px;
+  border-radius: 10px;
+}
+
+.app-scanner-page .bk-brand {
+  width: 190px;
+  height: 66px;
+  align-items: center;
+  overflow: hidden;
+}
+
+.app-scanner-page .bk-logo {
+  width: 115px;
+  margin: 0 -8px 0 0;
+}
+
+.app-scanner-page .owners {
+  width: 88px;
+  margin: 0;
+}
+
+.app-scanner-page .bk-title h1 {
+  font-size: 25px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.app-scanner-page .bk-title p {
+  margin-top: 4px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.app-scanner-page .live-container {
+  justify-self: end;
+  gap: 5px;
+  padding: 7px 9px;
+  font-size: 13px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.app-scanner-page .live-dot {
+  width: 7px;
+  height: 7px;
+}
+
+/* FOUR SESSIONS ACROSS */
+
+.app-scanner-page .session-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.app-scanner-page .session-card {
+  min-width: 0;
+  min-height: 66px;
+  padding: 7px 10px;
+  border-radius: 8px;
+}
+
+.app-scanner-page .session-heading {
+  gap: 4px;
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.app-scanner-page .session-flag {
+  font-size: 16px;
+}
+
+.app-scanner-page .session-status {
+  margin-top: 6px;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.app-scanner-page .session-time {
+  margin-top: 4px;
+  font-size: 9px;
+}
+
+/* FIVE STATS ACROSS */
+
+.app-scanner-page .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.app-scanner-page .stat-card {
+  min-width: 0;
+  min-height: 55px;
+  gap: 7px;
+  padding: 7px 10px;
+  border-radius: 8px;
+}
+
+.app-scanner-page .stat-icon {
+  font-size: 19px;
+}
+
+.app-scanner-page .stat-label {
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.app-scanner-page .stat-value {
+  margin-top: 3px;
+  font-size: 19px;
+  white-space: nowrap;
+}
+
+/* SEARCH + FILTER BAR */
+
+.app-scanner-page .dashboard-shell > div.rounded-xl {
+  padding: 6px;
+  border-radius: 8px;
+}
+
+.app-scanner-page .dashboard-shell > div.rounded-xl > div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.app-scanner-page .dashboard-shell > div.rounded-xl input {
+  width: 190px;
+  padding: 7px 9px;
+  font-size: 10px;
+  border-radius: 6px;
+}
+
+.app-scanner-page .dashboard-shell > div.rounded-xl > div > div {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 5px;
+}
+
+.app-scanner-page .dashboard-shell > div.rounded-xl button {
+  gap: 4px;
+  padding: 7px 11px;
+  font-size: 9px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.app-scanner-page .dashboard-shell > div.rounded-xl button svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* LIVE SCANNER */
+
+.app-scanner-page section.overflow-hidden {
+  border-radius: 8px;
+}
+
+.app-scanner-page section.overflow-hidden > div:first-child {
+  min-height: 30px;
+  padding: 6px 9px;
+}
+
+.app-scanner-page section.overflow-hidden h2 {
+  font-size: 12px;
+}
+
+.app-scanner-page section.overflow-hidden > div:first-child > div:last-child {
+  font-size: 9px;
+}
+
+/* TABLE - EVERYTHING INCLUDING AGE FITS */
+
+.app-scanner-page .overflow-x-auto {
+  overflow-x: hidden;
+}
+
+.app-scanner-page table {
+  width: 100%;
+  min-width: 0;
+  table-layout: fixed;
+  font-size: 9px;
+}
+
+.app-scanner-page th {
+  padding: 6px 4px;
+  font-size: 9px;
+  line-height: 1.1;
+}
+
+.app-scanner-page td {
+  padding: 6px 4px;
+  font-size: 9px;
+  line-height: 1.1;
+}
+
+.app-scanner-page th:nth-child(1) {
+  width: 17%;
+}
+
+.app-scanner-page th:nth-child(2) {
+  width: 14%;
+}
+
+.app-scanner-page th:nth-child(3) {
+  width: 17%;
+}
+
+.app-scanner-page th:nth-child(4) {
+  width: 19%;
+}
+
+.app-scanner-page th:nth-child(5) {
+  width: 19%;
+}
+
+.app-scanner-page th:nth-child(6) {
+  width: 14%;
+}
+
+/* Override normal website responsive rules */
+
+@media (max-width: 1100px) {
+  .app-scanner-page .stats-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .app-scanner-page .bk-header {
+    grid-template-columns: 190px minmax(0, 1fr) 105px;
+    padding: 0 12px;
+    text-align: initial;
+  }
+
+  .app-scanner-page .bk-brand {
+    justify-self: start;
+  }
+
+  .app-scanner-page .live-container {
+    justify-self: end;
+  }
+
+  .app-scanner-page .session-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .app-scanner-page .stats-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .app-scanner-page .session-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .app-scanner-page .stats-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
