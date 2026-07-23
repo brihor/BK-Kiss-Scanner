@@ -41,6 +41,8 @@ tr:hover {
   background: #333;
 }
 
+/* HEADER */
+
 .bk-header {
   min-height: 130px;
   display: grid;
@@ -165,23 +167,7 @@ tr:hover {
   }
 }
 
-@media (max-width: 900px) {
-  .bk-header {
-    grid-template-columns: 1fr;
-    gap: 12px;
-    padding: 18px;
-    text-align: center;
-  }
-
-  .bk-brand,
-  .live-container {
-    justify-self: center;
-  }
-
-  .bk-brand {
-    align-self: center;
-  }
-}
+/* SESSIONS */
 
 .session-grid {
   display: grid;
@@ -243,17 +229,7 @@ tr:hover {
   font-size: 14px;
 }
 
-@media (max-width: 900px) {
-  .session-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 560px) {
-  .session-grid {
-    grid-template-columns: 1fr;
-  }
-}
+/* DASHBOARD */
 
 .dashboard-page {
   min-height: 100vh;
@@ -269,6 +245,8 @@ tr:hover {
   flex-direction: column;
   gap: 18px;
 }
+
+/* STATS */
 
 .stats-grid {
   display: grid;
@@ -337,16 +315,46 @@ tr:hover {
   animation: none;
 }
 
+/* NORMAL WEBSITE RESPONSIVE RULES */
+
+@media (max-width: 900px) {
+  .bk-header {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding: 18px;
+    text-align: center;
+  }
+
+  .bk-brand,
+  .live-container {
+    justify-self: center;
+  }
+
+  .bk-brand {
+    align-self: center;
+  }
+
+  .session-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .session-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 1100px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* ========================================
-   BK KISS SCANNER APP MODE
-   Compact iPhone landscape dashboard
-======================================== */
+/* ==================================================
+   BK KISS SCANNER NATIVE APP MODE
+   850px landscape dashboard
+================================================== */
 
 html.bk-app-mode,
 html.bk-app-mode body {
@@ -361,8 +369,7 @@ html.bk-app-mode body {
 html.bk-app-mode .dashboard-page {
   width: 100% !important;
   min-width: 0 !important;
-  min-height: 100vh !important;
-  padding: 4px 54px !important;
+  padding: 4px 6px !important;
   box-sizing: border-box !important;
 }
 
@@ -371,165 +378,285 @@ html.bk-app-mode .dashboard-shell {
   min-width: 0 !important;
   max-width: none !important;
   margin: 0 !important;
-  gap: 5px !important;
+  gap: 4px !important;
 }
 
-/* HEADER */
+/* APP HEADER */
 
 html.bk-app-mode .bk-header {
-  min-height: 62px !important;
-  height: 62px !important;
-  grid-template-columns: 155px 1fr 100px !important;
+  width: 100% !important;
+  min-height: 52px !important;
+  height: 52px !important;
+  display: grid !important;
+  grid-template-columns: 150px minmax(0, 1fr) 82px !important;
+  align-items: center !important;
   gap: 4px !important;
-  padding: 0 10px !important;
-  border-radius: 10px !important;
+  padding: 0 8px !important;
+  box-sizing: border-box !important;
+  border-radius: 8px !important;
   text-align: initial !important;
 }
 
 html.bk-app-mode .bk-brand {
-  height: 62px !important;
-  justify-self: auto !important;
-  align-self: center !important;
+  width: 150px !important;
+  height: 50px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-self: start !important;
   overflow: hidden !important;
 }
 
 html.bk-app-mode .bk-logo {
-  width: 110px !important;
-  margin: 0 2px 0 0 !important;
+  width: 92px !important;
+  height: auto !important;
+  margin: 0 -6px 0 0 !important;
 }
 
 html.bk-app-mode .owners {
-  width: 82px !important;
+  width: 70px !important;
+  height: auto !important;
   margin: 0 !important;
 }
 
+html.bk-app-mode .bk-title {
+  min-width: 0 !important;
+  text-align: center !important;
+}
+
 html.bk-app-mode .bk-title h1 {
-  font-size: 23px !important;
+  margin: 0 !important;
+  font-size: 21px !important;
   line-height: 1 !important;
   white-space: nowrap !important;
 }
 
 html.bk-app-mode .bk-title p {
-  margin-top: 4px !important;
-  font-size: 9px !important;
-  letter-spacing: 0.4px !important;
+  margin: 3px 0 0 !important;
+  font-size: 8px !important;
+  line-height: 1 !important;
+  letter-spacing: 0.2px !important;
   white-space: nowrap !important;
 }
 
 html.bk-app-mode .live-container {
   justify-self: end !important;
-  gap: 5px !important;
-  padding: 7px 9px !important;
-  border-radius: 9px !important;
-  font-size: 13px !important;
+  gap: 4px !important;
+  padding: 5px 7px !important;
+  font-size: 11px !important;
+  border-radius: 7px !important;
   white-space: nowrap !important;
 }
 
-html.bk-app-mode .live-dot {
-  width: 8px !important;
-  height: 8px !important;
+html.bk-app-mode .live-container button {
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 11px !important;
 }
 
-/* FOUR SESSIONS ACROSS */
+html.bk-app-mode .live-dot {
+  width: 6px !important;
+  height: 6px !important;
+}
+
+/* APP SESSIONS: ALWAYS FOUR ACROSS */
 
 html.bk-app-mode .session-grid {
+  width: 100% !important;
   display: grid !important;
   grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  gap: 5px !important;
+  gap: 4px !important;
 }
 
 html.bk-app-mode .session-card {
   min-width: 0 !important;
-  min-height: 58px !important;
-  padding: 7px 9px !important;
-  border-radius: 9px !important;
+  min-height: 50px !important;
+  padding: 5px 7px !important;
+  box-sizing: border-box !important;
+  border-radius: 7px !important;
 }
 
 html.bk-app-mode .session-heading {
-  gap: 4px !important;
-  font-size: 11px !important;
+  gap: 3px !important;
+  font-size: 10px !important;
+  line-height: 1 !important;
   white-space: nowrap !important;
 }
 
 html.bk-app-mode .session-flag {
-  font-size: 15px !important;
+  font-size: 13px !important;
 }
 
 html.bk-app-mode .session-status {
   margin-top: 4px !important;
-  font-size: 15px !important;
+  font-size: 13px !important;
   line-height: 1 !important;
 }
 
 html.bk-app-mode .session-time {
-  margin-top: 4px !important;
+  margin-top: 3px !important;
   font-size: 8px !important;
+  line-height: 1 !important;
 }
 
-/* FIVE STATS ACROSS */
+/* APP STATS: ALWAYS FIVE ACROSS */
 
 html.bk-app-mode .stats-grid {
+  width: 100% !important;
   display: grid !important;
   grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-  gap: 5px !important;
+  gap: 4px !important;
 }
 
 html.bk-app-mode .stat-card {
   min-width: 0 !important;
-  min-height: 48px !important;
-  gap: 6px !important;
-  padding: 6px 8px !important;
-  border-radius: 9px !important;
+  min-height: 42px !important;
+  gap: 5px !important;
+  padding: 5px 7px !important;
+  box-sizing: border-box !important;
+  border-radius: 7px !important;
 }
 
 html.bk-app-mode .stat-icon {
-  font-size: 17px !important;
   flex-shrink: 0 !important;
+  font-size: 15px !important;
 }
 
 html.bk-app-mode .stat-label {
-  font-size: 8px !important;
+  margin: 0 !important;
+  font-size: 7px !important;
+  line-height: 1 !important;
   white-space: nowrap !important;
 }
 
 html.bk-app-mode .stat-value {
   margin-top: 2px !important;
-  font-size: 18px !important;
+  font-size: 15px !important;
   line-height: 1 !important;
   white-space: nowrap !important;
 }
 
-/* SEARCH / FILTER AREA */
+/* APP SEARCH + FILTERS
+   Override Tailwind flex-col / lg behavior */
 
-html.bk-app-mode input {
-  font-size: 10px !important;
+html.bk-app-mode .dashboard-shell > div.rounded-xl {
+  padding: 5px !important;
+  border-radius: 7px !important;
 }
 
-html.bk-app-mode button {
-  font-size: 10px !important;
+html.bk-app-mode .dashboard-shell > div.rounded-xl > div {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 5px !important;
 }
 
-/* SCANNER TABLE */
+html.bk-app-mode .dashboard-shell > div.rounded-xl input {
+  width: 180px !important;
+  min-width: 180px !important;
+  padding: 6px 8px !important;
+  font-size: 9px !important;
+  border-radius: 6px !important;
+}
+
+html.bk-app-mode .dashboard-shell > div.rounded-xl > div > div {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 4px !important;
+}
+
+html.bk-app-mode .dashboard-shell > div.rounded-xl button {
+  gap: 3px !important;
+  padding: 6px 10px !important;
+  font-size: 8px !important;
+  border-radius: 6px !important;
+  white-space: nowrap !important;
+}
+
+html.bk-app-mode .dashboard-shell > div.rounded-xl button svg {
+  width: 12px !important;
+  height: 12px !important;
+}
+
+/* APP LIVE SCANNER */
+
+html.bk-app-mode section.overflow-hidden {
+  border-radius: 7px !important;
+}
+
+html.bk-app-mode section.overflow-hidden > div:first-child {
+  padding: 5px 8px !important;
+  min-height: 28px !important;
+}
+
+html.bk-app-mode section.overflow-hidden h2 {
+  font-size: 11px !important;
+  line-height: 1 !important;
+}
+
+html.bk-app-mode section.overflow-hidden > div:first-child > div:last-child {
+  font-size: 8px !important;
+}
+
+html.bk-app-mode section.overflow-hidden svg {
+  width: 12px !important;
+  height: 12px !important;
+}
+
+/* TABLE */
+
+html.bk-app-mode .overflow-x-auto {
+  overflow-x: hidden !important;
+}
 
 html.bk-app-mode table {
   width: 100% !important;
+  min-width: 0 !important;
   table-layout: fixed !important;
-  font-size: 9px !important;
+  font-size: 8px !important;
 }
 
 html.bk-app-mode th {
-  padding: 6px 4px !important;
-  font-size: 9px !important;
+  padding: 5px 3px !important;
+  font-size: 8px !important;
+  line-height: 1.1 !important;
 }
 
 html.bk-app-mode td {
-  padding: 5px 4px !important;
-  font-size: 9px !important;
+  padding: 5px 3px !important;
+  font-size: 8px !important;
+  line-height: 1.1 !important;
 }
 
-/* Prevent responsive rules from stacking app-mode cards */
+/* Column widths for app */
+
+html.bk-app-mode th:nth-child(1) {
+  width: 20% !important;
+}
+
+html.bk-app-mode th:nth-child(2) {
+  width: 15% !important;
+}
+
+html.bk-app-mode th:nth-child(3),
+html.bk-app-mode th:nth-child(4),
+html.bk-app-mode th:nth-child(5) {
+  width: 18% !important;
+}
+
+html.bk-app-mode th:nth-child(6) {
+  width: 11% !important;
+}
+
+/* CRITICAL:
+   These rules come AFTER normal responsive rules so app mode
+   cannot collapse sessions, stats, or header. */
 
 @media (max-width: 1100px) {
+  html.bk-app-mode .bk-header {
+    grid-template-columns: 150px minmax(0, 1fr) 82px !important;
+  }
+
   html.bk-app-mode .session-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   }
@@ -537,9 +664,30 @@ html.bk-app-mode td {
   html.bk-app-mode .stats-grid {
     grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
   }
+}
 
+@media (max-width: 900px) {
   html.bk-app-mode .bk-header {
-    grid-template-columns: 155px 1fr 100px !important;
+    grid-template-columns: 150px minmax(0, 1fr) 82px !important;
+    gap: 4px !important;
+    padding: 0 8px !important;
+    text-align: initial !important;
+  }
+
+  html.bk-app-mode .bk-brand {
+    justify-self: start !important;
+  }
+
+  html.bk-app-mode .live-container {
+    justify-self: end !important;
+  }
+
+  html.bk-app-mode .session-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  html.bk-app-mode .stats-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
   }
 }
 
