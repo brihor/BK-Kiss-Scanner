@@ -33,3 +33,17 @@ enum AssetType {
   GOLD
   CRYPTO
 }
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  firstName    String?
+  lastName     String?
+  role         String   @default("USER")
+  isActive     Boolean  @default(true)
+
+  subscriptionStatus String @default("INACTIVE")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
