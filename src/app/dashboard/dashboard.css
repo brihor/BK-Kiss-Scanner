@@ -340,3 +340,46 @@ tr:hover {
     grid-template-columns:repeat(2,1fr);
   }
 }
+/* ========================================
+   BK KISS SCANNER MOBILE APP MODE
+   Keeps desktop dashboard layout inside app
+======================================== */
+
+html.bk-app-mode body {
+  min-width: 1700px;
+}
+
+html.bk-app-mode .dashboard-page {
+  width: 1700px;
+  min-width: 1700px;
+  padding: 12px;
+  box-sizing: border-box;
+}
+
+html.bk-app-mode .dashboard-shell {
+  width: 100%;
+  max-width: 1700px;
+}
+
+html.bk-app-mode .bk-header {
+  grid-template-columns: 330px 1fr 180px;
+  gap: 0;
+  padding: 0 32px;
+  text-align: initial;
+}
+
+html.bk-app-mode .bk-brand {
+  justify-self: auto;
+}
+
+html.bk-app-mode .live-container {
+  justify-self: end;
+}
+
+html.bk-app-mode .session-grid {
+  grid-template-columns: repeat(4, 1fr) !important;
+}
+
+html.bk-app-mode .stats-grid {
+  grid-template-columns: repeat(5, 1fr) !important;
+}

@@ -23,10 +23,24 @@ export default function DashboardPage() {
   const [soundEnabled, setSoundEnabled] = useState(true);
 
   useEffect(() => {
+    // Detect when the scanner is being displayed inside the mobile app
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get("app") === "1") {
+      document.documentElement.classList.add("bk-app-mode");
+    } else {
+      document.documentElement.classList.remove("bk-app-mode");
+    }
+
     const saved = localStorage.getItem("bk-sound-enabled");
+
     if (saved !== null) {
       setSoundEnabled(saved === "true");
     }
+
+    return () => {
+      document.documentElement.classList.remove("bk-app-mode");
+    };
   }, []);
 
   useEffect(() => {
@@ -47,7 +61,9 @@ export default function DashboardPage() {
     <main className="dashboard-page">
       <div className="dashboard-shell">
         <Header />
+
         <SessionBar />
+
         <StatsBar />
 
         <SearchFilterBar
