@@ -345,3 +345,32 @@
     grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
   }
 }
+/* NATIVE APP VIEWPORT FIX */
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.app-scanner-page {
+  width: 100vw;
+  max-width: 100vw;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.app-scanner-page *,
+.app-scanner-page *::before,
+.app-scanner-page *::after {
+  box-sizing: border-box;
+}
+
+.app-scanner-page .dashboard-page,
+.app-scanner-page .dashboard-shell {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
