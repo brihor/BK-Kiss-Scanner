@@ -1,0 +1,214 @@
+import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
+import { prisma } from "@/lib/prisma";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
+export async function POST(req: NextRequest) {
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  if (!webhookSecret) {
+    console.error("STRIPE_WEBHOOK_SECRET is not configured.");
+
+    return NextResponse.json(
+      { error: "Webhook secret not configured." },
+      { status: 500 }
+    );
+  }
+
+  const signature = req.headers.get("stripe-signature");
+
+  if (!signature) {
+    return NextResponse.json(
+      { error: "Missing Stripe signature." },
+      { status: 400 }
+    );
+  }
+
+  let event: Stripe.Event;
+
+  try {
+    const body = await req.text();
+
+    event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      webhookSecret
+    );
+  } catch (error) {
+    console.error("Stripe webhook verification failed:", error);
+
+    return NextResponse.json(
+      { error: "Invalid webhook signature." },
+      { status: 400 }
+    );
+  }
+
+  try {
+    switch (event.type) {
+      case "checkout.session.completed": {
+        const session = event.data.object as Stripe.Checkout.Session;
+
+        const email =
+          session.customer_details?.email ??
+          session.customer_email;
+
+        const customerId =
+          typeof session.customer === "string"
+            ? session.customer
+            : session.customer?.id;
+
+        const subscriptionId =
+          typeof session.subscription === "string"
+            ? session.subscription
+            : session.subscription?.id;
+
+        if (!email) {
+          console.error("Checkout completed without customer email.");
+          break;
+        }
+
+        const user = await prisma.user.findUnique({
+          where: {
+            email: email.toLowerCase(),
+          },
+        });
+
+        if (!user) {
+          console.error(
+            `No BK KiSS Scanner user found for ${email}.`
+          );
+          break;
+        }
+
+        await prisma.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            stripeCustomerId: customerId ?? null,
+            stripeSubscriptionId: subscriptionId ?? null,
+            subscriptionStatus: "ACTIVE",
+            isActive: true,
+          },
+        });
+
+        console.log(`Scanner activated for ${email}.`);
+
+        break;
+      }
+
+      case "customer.subscription.created":
+      case "customer.subscription.updated": {
+        const subscription = event.data.object as Stripe.Subscription;
+
+        const customerId =
+          typeof subscription.customer === "string"
+            ? subscription.customer
+            : subscription.customer.id;
+
+        const active =
+          subscription.status === "active" ||
+          subscription.status === "trialing";
+
+        await prisma.user.updateMany({
+          where: {
+            OR: [
+              {
+                stripeSubscriptionId: subscription.id,
+              },
+              {
+                stripeCustomerId: customerId,
+              },
+            ],
+          },
+          data: {
+            stripeCustomerId: customerId,
+            stripeSubscriptionId: subscription.id,
+            subscriptionStatus: subscription.status.toUpperCase(),
+            isActive: active,
+          },
+        });
+
+        break;
+      }
+
+      case "customer.subscription.deleted": {
+        const subscription = event.data.object as Stripe.Subscription;
+
+        await prisma.user.updateMany({
+          where: {
+            stripeSubscriptionId: subscription.id,
+          },
+          data: {
+            subscriptionStatus: "CANCELED",
+            isActive: false,
+          },
+        });
+
+        break;
+      }
+
+      case "invoice.paid": {
+        const invoice = event.data.object as Stripe.Invoice;
+
+        const customerId =
+          typeof invoice.customer === "string"
+            ? invoice.customer
+            : invoice.customer?.id;
+
+        if (customerId) {
+          await prisma.user.updateMany({
+            where: {
+              stripeCustomerId: customerId,
+            },
+            data: {
+              subscriptionStatus: "ACTIVE",
+              isActive: true,
+            },
+          });
+        }
+
+        break;
+      }
+
+      case "invoice.payment_failed": {
+        const invoice = event.data.object as Stripe.Invoice;
+
+        const customerId =
+          typeof invoice.customer === "string"
+            ? invoice.customer
+            : invoice.customer?.id;
+
+        if (customerId) {
+          await prisma.user.updateMany({
+            where: {
+              stripeCustomerId: customerId,
+            },
+            data: {
+              subscriptionStatus: "PAST_DUE",
+            },
+          });
+        }
+
+        // Do NOT immediately disable scanner access here.
+        // Stripe may still retry the customer's payment.
+        break;
+      }
+
+      default:
+        console.log(`Unhandled Stripe event: ${event.type}`);
+    }
+
+    return NextResponse.json({
+      received: true,
+    });
+  } catch (error) {
+    console.error("Stripe webhook processing error:", error);
+
+    return NextResponse.json(
+      { error: "Webhook processing failed." },
+      { status: 500 }
+    );
+  }
+}
