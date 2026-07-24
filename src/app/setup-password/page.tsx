@@ -68,30 +68,61 @@ function SetupPasswordForm() {
     <main
       style={{
         minHeight: "100vh",
-        background: "#03070d",
+        backgroundImage:
+          "linear-gradient(rgba(0,0,0,0.35), rgba(0,0,0,0.55)), url('/images/bk-scanner-welcome.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
         display: "flex",
-        justifyContent: "center",
+        justifyContent: "flex-end",
         alignItems: "center",
-        padding: "24px",
+        padding: "40px 7%",
         color: "#ffffff",
+        boxSizing: "border-box",
       }}
     >
       <div
         style={{
           width: "100%",
-          maxWidth: "480px",
-          background: "#111820",
-          border: "1px solid #29323d",
-          borderRadius: "16px",
+          maxWidth: "470px",
+          background: "rgba(8, 13, 20, 0.91)",
+          border: "1px solid rgba(255,255,255,0.18)",
+          borderRadius: "18px",
           padding: "36px",
+          boxShadow:
+            "0 25px 70px rgba(0,0,0,0.65), 0 0 35px rgba(160,0,0,0.18)",
+          backdropFilter: "blur(10px)",
         }}
       >
-        <h1 style={{ fontSize: "30px", marginBottom: "8px" }}>
+        <div
+          style={{
+            width: "55px",
+            height: "4px",
+            background: "#b21f24",
+            borderRadius: "10px",
+            marginBottom: "20px",
+          }}
+        />
+
+        <h1
+          style={{
+            fontSize: "30px",
+            margin: "0 0 8px",
+            lineHeight: "1.2",
+          }}
+        >
           Welcome to BK KiSS Scanner
         </h1>
 
-        <p style={{ color: "#aab3bd", marginBottom: "28px" }}>
-          Create your password to complete your account setup.
+        <p
+          style={{
+            color: "#b7bec7",
+            marginBottom: "28px",
+            lineHeight: "1.5",
+          }}
+        >
+          Your subscription is active. Create your password to access
+          your scanner.
         </p>
 
         <form onSubmit={handleSubmit}>
@@ -110,9 +141,10 @@ function SetupPasswordForm() {
               marginBottom: "18px",
               borderRadius: "8px",
               border: "1px solid #3a4652",
-              background: "#0a1016",
+              background: "rgba(4, 9, 14, 0.88)",
               color: "#ffffff",
               boxSizing: "border-box",
+              fontSize: "16px",
             }}
           />
 
@@ -132,9 +164,10 @@ function SetupPasswordForm() {
               marginBottom: "18px",
               borderRadius: "8px",
               border: "1px solid #3a4652",
-              background: "#0a1016",
+              background: "rgba(4, 9, 14, 0.88)",
               color: "#ffffff",
               boxSizing: "border-box",
+              fontSize: "16px",
             }}
           />
 
@@ -156,9 +189,10 @@ function SetupPasswordForm() {
               marginBottom: "22px",
               borderRadius: "8px",
               border: "1px solid #3a4652",
-              background: "#0a1016",
+              background: "rgba(4, 9, 14, 0.88)",
               color: "#ffffff",
               boxSizing: "border-box",
+              fontSize: "16px",
             }}
           />
 
@@ -180,19 +214,32 @@ function SetupPasswordForm() {
             style={{
               width: "100%",
               padding: "15px",
-              background: "#8C1D1D",
+              background:
+                "linear-gradient(135deg, #8C1D1D 0%, #c52626 100%)",
               color: "#ffffff",
-              border: "none",
+              border: "1px solid rgba(255,80,80,0.4)",
               borderRadius: "8px",
               fontSize: "17px",
               fontWeight: "700",
               cursor: "pointer",
               opacity: loading ? 0.6 : 1,
+              boxShadow: "0 8px 25px rgba(180,0,0,0.25)",
             }}
           >
             {loading ? "Creating Account..." : "Create Password"}
           </button>
         </form>
+
+        <p
+          style={{
+            color: "#737d88",
+            fontSize: "12px",
+            textAlign: "center",
+            margin: "20px 0 0",
+          }}
+        >
+          BK Trading Academy • BK KiSS Scanner
+        </p>
       </div>
     </main>
   );
