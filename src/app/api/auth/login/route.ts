@@ -25,6 +25,12 @@ export async function POST(request: Request) {
         { status: 401 }
       );
     }
+    if (!user.passwordHash) {
+      return NextResponse.json(
+       { error: "Please complete your BK KiSS Scanner account setup before signing in." },
+       { status: 403 }
+    );
+    }
 
     const passwordMatches = await bcrypt.compare(
       password,

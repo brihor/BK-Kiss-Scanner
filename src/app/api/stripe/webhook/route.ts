@@ -68,24 +68,38 @@ export async function POST(req: NextRequest) {
           break;
         }
 
-        const user = await prisma.user.findUnique({
-          where: {
-            email: email.toLowerCase(),
-          },
-        });
+        const normalizedEmail = email.trim().toLowerCase();
 
-        if (!user) {
-          console.error(
-            `No BK KiSS Scanner user found for ${email}.`
-          );
-          break;
-        }
+        const fullName =
+          session.customer_details?.name?.trim() ?? "";
 
-        await prisma.user.update({
+        const nameParts = fullName
+          .split(/\s+/)
+          .filter(Boolean);
+
+        const firstName = nameParts[0] || null;
+
+        const lastName =
+          nameParts.length > 1
+            ? nameParts.slice(1).join(" ")
+            : null;
+
+        await prisma.user.upsert({
           where: {
-            id: user.id,
+            email: normalizedEmail,
           },
-          data: {
+          update: {
+            firstName,
+            lastName,
+            stripeCustomerId: customerId ?? null,
+            stripeSubscriptionId: subscriptionId ?? null,
+            subscriptionStatus: "ACTIVE",
+            isActive: true,
+          },
+          create: {
+            email: normalizedEmail,
+            firstName,
+            lastName,
             stripeCustomerId: customerId ?? null,
             stripeSubscriptionId: subscriptionId ?? null,
             subscriptionStatus: "ACTIVE",
@@ -93,14 +107,17 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        console.log(`Scanner activated for ${email}.`);
+        console.log(
+          `Scanner subscription activated for ${normalizedEmail}.`
+        );
 
         break;
       }
 
       case "customer.subscription.created":
       case "customer.subscription.updated": {
-        const subscription = event.data.object as Stripe.Subscription;
+        const subscription =
+          event.data.object as Stripe.Subscription;
 
         const customerId =
           typeof subscription.customer === "string"
@@ -125,7 +142,8 @@ export async function POST(req: NextRequest) {
           data: {
             stripeCustomerId: customerId,
             stripeSubscriptionId: subscription.id,
-            subscriptionStatus: subscription.status.toUpperCase(),
+            subscriptionStatus:
+              subscription.status.toUpperCase(),
             isActive: active,
           },
         });
@@ -134,7 +152,8 @@ export async function POST(req: NextRequest) {
       }
 
       case "customer.subscription.deleted": {
-        const subscription = event.data.object as Stripe.Subscription;
+        const subscription =
+          event.data.object as Stripe.Subscription;
 
         await prisma.user.updateMany({
           where: {
@@ -191,20 +210,24 @@ export async function POST(req: NextRequest) {
           });
         }
 
-        // Do NOT immediately disable scanner access here.
-        // Stripe may still retry the customer's payment.
+        // Keep access temporarily while Stripe retries payment.
         break;
       }
 
       default:
-        console.log(`Unhandled Stripe event: ${event.type}`);
+        console.log(
+          `Unhandled Stripe event: ${event.type}`
+        );
     }
 
     return NextResponse.json({
       received: true,
     });
   } catch (error) {
-    console.error("Stripe webhook processing error:", error);
+    console.error(
+      "Stripe webhook processing error:",
+      error
+    );
 
     return NextResponse.json(
       { error: "Webhook processing failed." },
