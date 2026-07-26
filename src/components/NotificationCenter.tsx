@@ -29,13 +29,8 @@ function cleanPair(pair: string): string {
 function formatPair(pair: string): string {
   const cleanedPair = cleanPair(pair);
 
-  if (cleanedPair === "XAUUSD") {
-    return "XAU/USD";
-  }
-
-  if (cleanedPair === "XAGUSD") {
-    return "XAG/USD";
-  }
+  if (cleanedPair === "XAUUSD") return "XAU/USD";
+  if (cleanedPair === "XAGUSD") return "XAG/USD";
 
   if (cleanedPair.length === 6) {
     return `${cleanedPair.slice(0, 3)}/${cleanedPair.slice(3)}`;
@@ -64,6 +59,45 @@ function getSignalCategory(pair: string): SignalCategory {
   }
 
   return "FOREX";
+}
+
+function sendSignalToNativeApp(
+  signal: Signal,
+  category: SignalCategory
+) {
+  if (
+    typeof window === "undefined" ||
+    !window.ReactNativeWebView
+  ) {
+    return;
+  }
+
+  const direction =
+    signal.direction ?? signal.signal;
+
+  window.ReactNativeWebView.postMessage(
+    JSON.stringify({
+      type: "BK_NEW_SIGNAL",
+      signal: {
+        id: signal.id,
+        pair: formatPair(signal.pair),
+        direction,
+        category,
+        entry: signal.entry,
+        takeProfit: signal.takeProfit,
+        stopLoss: signal.stopLoss,
+        signalTime: signal.signalTime,
+      },
+    })
+  );
+}
+
+declare global {
+  interface Window {
+    ReactNativeWebView?: {
+      postMessage: (message: string) => void;
+    };
+  }
 }
 
 export default function NotificationCenter({
@@ -97,6 +131,9 @@ export default function NotificationCenter({
       }
 
       const category = getSignalCategory(signal.pair);
+
+      // Send every new signal to the native mobile app.
+      sendSignalToNativeApp(signal, category);
 
       const signalIsVisible =
         activeFilter === "ALL" ||
