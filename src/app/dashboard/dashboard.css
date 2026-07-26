@@ -352,80 +352,34 @@ tr:hover {
 }
 
 /* ==================================================
-/* ==================================================
    BK KISS SCANNER APP MODE
-   Preserve exact desktop dashboard layout
+   Fit complete scanner inside mobile landscape width
 ================================================== */
 
 html.bk-app-mode,
 html.bk-app-mode body {
   margin: 0 !important;
   padding: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow-x: hidden !important;
   background: #03070d !important;
 }
 
-html.bk-app-mode body {
-  width: 1700px !important;
-  min-width: 1700px !important;
-}
-
 html.bk-app-mode .dashboard-page {
-  width: 1700px !important;
-  min-width: 1700px !important;
-  padding: 12px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  padding: 5px !important;
   box-sizing: border-box !important;
+  overflow-x: hidden !important;
 }
 
 html.bk-app-mode .dashboard-shell {
   width: 100% !important;
-  max-width: 1700px !important;
+  max-width: 100% !important;
   min-width: 0 !important;
   margin: 0 auto !important;
-}
-
-/* Preserve desktop header */
-
-html.bk-app-mode .bk-header {
-  grid-template-columns: 330px 1fr 180px !important;
-  gap: 0 !important;
-  padding: 0 32px !important;
-  text-align: initial !important;
-}
-
-html.bk-app-mode .bk-brand {
-  justify-self: auto !important;
-}
-
-html.bk-app-mode .live-container {
-  justify-self: end !important;
-}
-
-/* Preserve four desktop sessions */
-
-html.bk-app-mode .session-grid {
-  grid-template-columns: repeat(4, 1fr) !important;
-}
-
-/* Preserve five desktop statistics */
-
-html.bk-app-mode .stats-grid {
-  grid-template-columns: repeat(5, 1fr) !important;
-}
-
-/* Preserve desktop search/filter layout */
-
-html.bk-app-mode .dashboard-shell > div.rounded-xl > div {
-  flex-direction: row !important;
-}
-
-/* Preserve complete desktop scanner table */
-
-html.bk-app-mode .overflow-x-auto {
-  overflow-x: visible !important;
-}
-
-html.bk-app-mode table {
-  width: 100% !important;
-  min-width: 850px !important;
-  table-layout: auto !important;
+  overflow-x: hidden !important;
 }
