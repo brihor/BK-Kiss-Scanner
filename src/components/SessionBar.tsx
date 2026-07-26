@@ -68,10 +68,20 @@ export default function SessionBar() {
           timeZone: session.timeZone,
         });
 
+        const dayFormatter = new Intl.DateTimeFormat("en-US", {
+          weekday: "short",
+          timeZone: session.timeZone,
+        });
+
         const localTime = formatter.format(now);
         const currentHour = Number(hourFormatter.format(now));
+        const localDay = dayFormatter.format(now);
+
+        const isWeekend =
+          localDay === "Sat" || localDay === "Sun";
 
         const isOpen =
+          !isWeekend &&
           currentHour >= session.openHour &&
           currentHour < session.closeHour;
 
