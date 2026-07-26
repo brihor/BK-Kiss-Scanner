@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 type Session = {
   city: string;
   flag: string;
-  timeZone: string;
   openHour: number;
   closeHour: number;
 };
@@ -14,30 +13,26 @@ const sessions: Session[] = [
   {
     city: "London",
     flag: "🇬🇧",
-    timeZone: "Europe/London",
-    openHour: 8,
-    closeHour: 17,
+    openHour: 3,
+    closeHour: 12,
   },
   {
     city: "New York",
     flag: "🇺🇸",
-    timeZone: "America/New_York",
     openHour: 8,
     closeHour: 17,
   },
   {
     city: "Tokyo",
     flag: "🇯🇵",
-    timeZone: "Asia/Tokyo",
-    openHour: 9,
-    closeHour: 18,
+    openHour: 18,
+    closeHour: 3,
   },
   {
     city: "Sydney",
     flag: "🇦🇺",
-    timeZone: "Australia/Sydney",
-    openHour: 8,
-    closeHour: 17,
+    openHour: 16,
+    closeHour: 1,
   },
 ];
 
@@ -52,43 +47,59 @@ export default function SessionBar() {
     return () => clearInterval(timer);
   }, []);
 
+  const nyParts = new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    hour: "numeric",
+    hour12: false,
+    timeZone: "America/New_York",
+  }).formatToParts(now);
+
+  const nyDay =
+    nyParts.find((part) => part.type === "weekday")?.value ?? "";
+
+  const nyHour = Number(
+    nyParts.find((part) => part.type === "hour")?.value ?? "0"
+  );
+
   return (
     <section className="session-grid">
       {sessions.map((session) => {
-        const formatter = new Intl.DateTimeFormat("en-US", {
+        const crossesMidnight =
+          session.closeHour < session.openHour;
+
+        const withinHours = crossesMidnight
+          ? nyHour >= session.openHour ||
+            nyHour < session.closeHour
+          : nyHour >= session.openHour &&
+            nyHour < session.closeHour;
+
+        const weekendClosed =
+          nyDay === "Sat" ||
+          (nyDay === "Sun" && nyHour < 16);
+
+        const fridayAfterClose =
+          nyDay === "Fri" && nyHour >= 17;
+
+        const isOpen =
+          withinHours &&
+          !weekendClosed &&
+          !fridayAfterClose;
+
+        const localTime = new Intl.DateTimeFormat("en-US", {
           hour: "numeric",
           minute: "2-digit",
           hour12: true,
-          timeZone: session.timeZone,
-        });
+          timeZone:
+            session.city === "London"
+              ? "Europe/London"
+              : session.city === "New York"
+              ? "America/New_York"
+              : session.city === "Tokyo"
+              ? "Asia/Tokyo"
+              : "Australia/Sydney",
+        }).format(now);
 
-        const hourFormatter = new Intl.DateTimeFormat("en-US", {
-          hour: "numeric",
-          hour12: false,
-          timeZone: session.timeZone,
-        });
-
-        const dayFormatter = new Intl.DateTimeFormat("en-US", {
-          weekday: "short",
-          timeZone: session.timeZone,
-        });
-
-        const localTime = formatter.format(now);
-        const currentHour = Number(hourFormatter.format(now));
-        const localDay = dayFormatter.format(now);
-
-        const isSaturday = localDay === "Sat";
-
-        const isSundayBeforeOpen =
-          localDay === "Sun" && session.city !== "Sydney";
-
-        const isOpen =
-          !isSaturday &&
-          !isSundayBeforeOpen &&
-          currentHour >= session.openHour &&
-          currentHour < session.closeHour;
-
-     return (
+        return (
           <div
             key={session.city}
             className={`session-card transition-all duration-500 ${
