@@ -77,15 +77,18 @@ export default function SessionBar() {
         const currentHour = Number(hourFormatter.format(now));
         const localDay = dayFormatter.format(now);
 
-        const isWeekend =
-          localDay === "Sat" || localDay === "Sun";
+        const isSaturday = localDay === "Sat";
+
+        const isSundayBeforeOpen =
+          localDay === "Sun" && session.city !== "Sydney";
 
         const isOpen =
-          !isWeekend &&
+          !isSaturday &&
+          !isSundayBeforeOpen &&
           currentHour >= session.openHour &&
           currentHour < session.closeHour;
 
-        return (
+     return (
           <div
             key={session.city}
             className={`session-card transition-all duration-500 ${
