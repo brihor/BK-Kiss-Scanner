@@ -1,3 +1,4 @@
+import { sendSignalPushNotification } from "@/lib/pushNotifications";
 import { NextResponse } from "next/server";
 import { scanMarket } from "@/lib/scanner";
 import {
@@ -87,6 +88,8 @@ export async function GET() {
         };
 
         await addSignal(newSignal);
+
+        await sendSignalPushNotification(newSignal);
 
         continue;
       }
