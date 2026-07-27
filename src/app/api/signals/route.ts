@@ -89,7 +89,9 @@ export async function GET() {
 
         await addSignal(newSignal);
 
-        await sendSignalPushNotification(newSignal);
+        await sendSignalPushNotification(
+          newSignal
+        );
 
         continue;
       }
@@ -152,6 +154,10 @@ export async function GET() {
       };
 
       await updateSignal(
+        refreshedSignal
+      );
+
+      await sendSignalPushNotification(
         refreshedSignal
       );
     }
