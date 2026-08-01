@@ -1,0 +1,281 @@
+.account-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  background:
+    linear-gradient(rgba(0,0,0,.55), rgba(0,0,0,.55)),
+    url("/images/login-background.png");
+  background-size: cover;
+  background-position: center;
+}
+
+.account-card{
+  width:100%;
+  max-width:980px;
+  background:rgba(10,10,10,.72);
+  backdrop-filter:blur(16px);
+  border:2px solid rgba(255,255,255,.16);
+  border-radius:24px;
+  padding:48px;
+  box-shadow:
+      0 35px 90px rgba(0,0,0,.75),
+      inset 0 0 0 1px rgba(255,255,255,.03);
+}
+
+.account-brand{
+    text-align:center;
+    color:#fff;
+    font-size:34px;
+    font-weight:700;
+    margin-bottom:28px;
+}
+
+.account-brand span{
+    color:#C8102E;
+}
+
+.account-card h1{
+    text-align:center;
+    color:#fff;
+    font-size:58px;
+    margin:0;
+    font-weight:700;
+}
+
+.account-subtitle{
+    text-align:center;
+    color:#a5a5a5;
+    font-size:22px;
+    margin:18px 0 42px;
+}
+
+.status-box{
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:18px;
+    padding:28px;
+    text-align:center;
+    margin-bottom:34px;
+}
+
+.status-label{
+    display:block;
+    color:#808080;
+    font-size:15px;
+    letter-spacing:3px;
+    margin-bottom:14px;
+}
+
+.status-active{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:12px;
+    color:#36ff73;
+    font-size:34px;
+    font-weight:700;
+}
+
+.status-dot{
+    width:14px;
+    height:14px;
+    border-radius:50%;
+    background:#36ff73;
+    animation:pulseGreen 1.6s infinite;
+}
+
+@keyframes pulseGreen{
+
+0%{
+box-shadow:0 0 0 0 rgba(54,255,115,.8);
+}
+
+70%{
+box-shadow:0 0 0 14px rgba(54,255,115,0);
+}
+
+100%{
+box-shadow:0 0 0 0 rgba(54,255,115,0);
+}
+
+}
+
+.scanner-button{
+    width:100%;
+    border:none;
+    border-radius:14px;
+    padding:22px;
+    font-size:28px;
+    font-weight:700;
+    color:white;
+    cursor:pointer;
+    background:#9E1028;
+    margin-bottom:28px;
+    transition:.22s ease;
+}
+
+.account-options{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+    margin-bottom:38px;
+}
+
+.option-button{
+    height:68px;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,.15);
+    background:#1a1a1a;
+    color:white;
+    font-size:21px;
+    cursor:pointer;
+    transition:.22s ease;
+}
+
+.scanner-button:hover,
+.option-button:hover,
+.store-link:hover{
+
+transform:translateY(-2px);
+
+box-shadow:
+0 12px 26px rgba(158,16,40,.30),
+0 0 18px rgba(158,16,40,.25);
+
+}
+
+.scanner-button:active,
+.option-button:active,
+.store-link:active{
+
+transform:translateY(1px);
+
+}
+
+.download-section{
+    margin-top:12px;
+}
+
+.download-title{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    color:#9a9a9a;
+    margin-bottom:24px;
+    letter-spacing:2px;
+    font-size:18px;
+}
+
+.download-title:before,
+.download-title:after{
+
+content:"";
+flex:1;
+height:1px;
+background:#363636;
+
+}
+
+.store-buttons{
+
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px;
+
+}
+
+.store-link{
+
+display:flex;
+justify-content:center;
+align-items:center;
+text-decoration:none;
+transition:.22s;
+
+}
+
+.store-badge{
+
+width:100%;
+max-width:300px;
+
+}
+
+.google-placeholder{
+
+width:300px;
+height:88px;
+border-radius:14px;
+background:#000;
+border:2px solid #888;
+
+display:flex;
+justify-content:center;
+align-items:center;
+gap:18px;
+
+}
+
+.play-icon{
+
+width:0;
+height:0;
+
+border-top:18px solid transparent;
+border-bottom:18px solid transparent;
+border-left:28px solid #35d16f;
+
+}
+
+.google-placeholder small{
+
+display:block;
+color:#d5d5d5;
+font-size:14px;
+letter-spacing:1px;
+
+}
+
+.google-placeholder strong{
+
+display:block;
+color:white;
+font-size:32px;
+
+}
+
+.app-note{
+
+margin-top:36px;
+text-align:center;
+color:#909090;
+font-size:18px;
+
+}
+
+@media(max-width:850px){
+
+.account-card{
+padding:30px;
+}
+
+.account-card h1{
+font-size:40px;
+}
+
+.account-options,
+.store-buttons{
+
+grid-template-columns:1fr;
+
+}
+
+.google-placeholder{
+
+width:100%;
+
+}
+
+}

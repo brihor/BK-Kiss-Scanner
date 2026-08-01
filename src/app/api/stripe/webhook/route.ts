@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
+const SCANNER_PRODUCT_ID = "prod_UwdOmOPiFUt0zz";
+
 export async function POST(req: NextRequest) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -63,6 +65,21 @@ export async function POST(req: NextRequest) {
             ? session.subscription
             : session.subscription?.id;
 
+          const subscription =
+            subscriptionId
+              ? await stripe.subscriptions.retrieve(subscriptionId)
+              : null;
+
+          const purchasedProductId =
+            subscription?.items.data[0]?.price?.product;
+
+          if (purchasedProductId !== SCANNER_PRODUCT_ID) {
+            console.log(
+              `Ignoring non-scanner purchase: ${purchasedProductId}`
+            );
+            break;
+          }
+
         if (!email) {
           console.error("Checkout completed without customer email.");
           break;
@@ -119,6 +136,16 @@ export async function POST(req: NextRequest) {
         const subscription =
           event.data.object as Stripe.Subscription;
 
+          const purchasedProductId =
+            subscription.items.data[0]?.price?.product;
+
+          if (purchasedProductId !== SCANNER_PRODUCT_ID) {
+            console.log(
+              `Ignoring non-scanner subscription: ${purchasedProductId}`
+            );
+            break;
+          }
+
         const customerId =
           typeof subscription.customer === "string"
             ? subscription.customer
@@ -155,6 +182,16 @@ export async function POST(req: NextRequest) {
         const subscription =
           event.data.object as Stripe.Subscription;
 
+        const purchasedProductId =
+          subscription.items.data[0]?.price?.product;
+
+        if (purchasedProductId !== SCANNER_PRODUCT_ID) {
+          console.log(
+            `Ignoring non-scanner cancellation: ${purchasedProductId}`
+          );
+          break;
+        }
+
         await prisma.user.updateMany({
           where: {
             stripeSubscriptionId: subscription.id,
@@ -169,50 +206,84 @@ export async function POST(req: NextRequest) {
       }
 
       case "invoice.paid": {
-        const invoice = event.data.object as Stripe.Invoice;
+        const invoice = event.data.object as Stripe.Invoice & {
+          subscription?: string | { id: string };
+        };
 
-        const customerId =
-          typeof invoice.customer === "string"
-            ? invoice.customer
-            : invoice.customer?.id;
+        const subscriptionId =
+          typeof invoice.subscription === "string"
+            ? invoice.subscription
+            : invoice.subscription?.id;
 
-        if (customerId) {
-          await prisma.user.updateMany({
-            where: {
-              stripeCustomerId: customerId,
-            },
-            data: {
-              subscriptionStatus: "ACTIVE",
-              isActive: true,
-            },
-          });
-        }
+        if (!subscriptionId) {
+          break;
+      }
 
+      const subscription =
+        await stripe.subscriptions.retrieve(subscriptionId);
+
+      const purchasedProductId =
+        subscription.items.data[0]?.price?.product;
+
+      if (purchasedProductId !== SCANNER_PRODUCT_ID) {
+        console.log(
+          `Ignoring non-scanner invoice: ${purchasedProductId}`
+        );
         break;
       }
+
+      await prisma.user.updateMany({
+        where: {
+          stripeSubscriptionId: subscription.id,
+        },
+        data: {
+          subscriptionStatus: "ACTIVE",
+          isActive: true,
+        },
+      });
+
+      break;
+    }
 
       case "invoice.payment_failed": {
-        const invoice = event.data.object as Stripe.Invoice;
+        const invoice = event.data.object as Stripe.Invoice & {
+          subscription?: string | { id: string };
+        };
 
-        const customerId =
-          typeof invoice.customer === "string"
-            ? invoice.customer
-            : invoice.customer?.id;
+        const subscriptionId =
+          typeof invoice.subscription === "string"
+            ? invoice.subscription
+            : invoice.subscription?.id;
 
-        if (customerId) {
-          await prisma.user.updateMany({
-            where: {
-              stripeCustomerId: customerId,
-            },
-            data: {
-              subscriptionStatus: "PAST_DUE",
-            },
-          });
+        if (!subscriptionId) {
+          break;
         }
 
-        // Keep access temporarily while Stripe retries payment.
+        const subscription =
+          await stripe.subscriptions.retrieve(subscriptionId);
+
+      const purchasedProductId =
+        subscription.items.data[0]?.price?.product;
+
+      if (purchasedProductId !== SCANNER_PRODUCT_ID) {
+        console.log(
+          `Ignoring non-scanner failed payment: ${purchasedProductId}`
+        );
         break;
       }
+
+      await prisma.user.updateMany({
+        where: {
+          stripeSubscriptionId: subscription.id,
+        },
+        data: {
+          subscriptionStatus: "PAST_DUE",
+        },
+      });
+
+      // Keep access temporarily while Stripe retries payment.
+      break;
+    }
 
       default:
         console.log(

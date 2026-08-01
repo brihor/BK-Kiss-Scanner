@@ -1,0 +1,106 @@
+.bk-login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    linear-gradient(rgba(0,0,0,.58), rgba(0,0,0,.58)),
+    url("/images/login-background.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.bk-login-card {
+  width: 100%;
+  max-width: 430px;
+  padding: 42px 36px;
+  background: rgba(10,10,10,.72);
+  backdrop-filter: blur(14px);
+  border: 2px solid rgba(255,255,255,.22);
+  border-radius: 18px;
+  box-shadow: 0 25px 70px rgba(0,0,0,.65);
+}
+
+.bk-login-brand {
+  text-align: center;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  margin-bottom: 28px;
+}
+
+.bk-login-brand span {
+  color: #e10600;
+}
+
+.bk-login-card h1 {
+  margin: 0;
+  text-align: center;
+  font-size: 34px;
+}
+
+.bk-login-subtitle {
+  text-align: center;
+  color: #aaa;
+  margin: 10px 0 30px;
+}
+
+.bk-login-card label {
+  display: block;
+  margin-bottom: 18px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.bk-login-card input {
+  width: 100%;
+  margin-top: 8px;
+  padding: 14px 15px;
+  border-radius: 8px;
+  border: 1px solid #3a3a3a;
+  background: #090909;
+  color: white;
+  font-size: 16px;
+  outline: none;
+}
+
+.bk-login-card input:focus {
+  border-color: #e10600;
+}
+
+.bk-login-card button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 15px;
+  border: 0;
+  border-radius: 8px;
+  background: #e10600;
+  color: white;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.bk-login-card button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.bk-login-error {
+  margin-bottom: 14px;
+  padding: 11px;
+  border-radius: 7px;
+  background: rgba(225, 6, 0, 0.12);
+  border: 1px solid #e10600;
+  color: #ff8b87;
+  font-size: 13px;
+}
+
+.bk-login-help {
+  margin: 22px 0 0;
+  text-align: center;
+  color: #777;
+  font-size: 12px;
+}
