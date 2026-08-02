@@ -57,6 +57,10 @@ function SetupPasswordForm() {
 
       setPassword("");
       setConfirmPassword("");
+
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 1500);
     } catch {
       setError("Unable to complete account setup. Please try again.");
     } finally {
