@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
 
 function getKey() {
@@ -25,4 +26,15 @@ export async function verifySessionToken(token: string) {
   } catch {
     return null;
   }
+}
+
+export async function getSession() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("bk_session")?.value;
+
+  if (!token) {
+    return null;
+  }
+
+  return await verifySessionToken(token);
 }
