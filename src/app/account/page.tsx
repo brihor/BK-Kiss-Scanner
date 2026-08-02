@@ -66,7 +66,7 @@ export default function AccountPage() {
 
         <button
           className="scanner-button"
-          onClick={() => router.push("/app-scanner")}
+          onClick={() => router.push("/")}
         >
           OPEN KiSS SCANNER
         </button>
