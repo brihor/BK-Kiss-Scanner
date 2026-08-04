@@ -50,9 +50,16 @@ function ResetPasswordForm() {
       if (!response.ok) {
         setError(data.error || "Unable to reset password.");
       } else {
-        setMessage("Password updated successfully. You may now sign in.");
+        setMessage(
+          "✅ Password updated successfully! Redirecting you to sign in..."
+        );
+
         setPassword("");
         setConfirmPassword("");
+
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 3000);
       }
     } catch {
       setError("Something went wrong.");
@@ -70,38 +77,53 @@ function ResetPasswordForm() {
 
         <h1>Reset Password</h1>
 
-        <p className="bk-login-subtitle">
-          Enter your new password below.
-        </p>
+        {!message && (
+          <>
+            <p className="bk-login-subtitle">
+              Enter your new password below.
+            </p>
 
-        <form onSubmit={handleSubmit}>
-          <label>
-            New Password
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </label>
+            <form onSubmit={handleSubmit}>
+              <label>
+                New Password
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </label>
 
-          <label>
-            Confirm Password
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-          </label>
+              <label>
+                Confirm Password
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </label>
 
-          {message && <div className="bk-login-success">{message}</div>}
-          {error && <div className="bk-login-error">{error}</div>}
+              {error && <div className="bk-login-error">{error}</div>}
 
-          <button type="submit" disabled={loading}>
-            {loading ? "UPDATING..." : "SAVE PASSWORD"}
-          </button>
-        </form>
+              <button type="submit" disabled={loading}>
+                {loading ? "UPDATING..." : "SAVE PASSWORD"}
+              </button>
+            </form>
+          </>
+        )}
+
+        {message && (
+          <>
+            <div className="bk-login-success">{message}</div>
+
+            <button
+              onClick={() => (window.location.href = "/login")}
+            >
+              CONTINUE TO SIGN IN
+            </button>
+          </>
+        )}
       </div>
     </main>
   );
