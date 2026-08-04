@@ -82,13 +82,20 @@ export default function LoginPage() {
           {error && <div className="bk-login-error">{error}</div>}
 
           <button type="submit" disabled={loading}>
-            {loading ? "SIGNING IN..." : "SIGN IN"}
-          </button>
-        </form>
+  {loading ? "SIGNING IN..." : "SIGN IN"}
+</button>
 
-        <p className="bk-login-help">
-          An active BK KiSS Scanner subscription is required.
-        </p>
+<p
+  className="bk-forgot-password"
+  onClick={() => router.push("/forgot-password")}
+>
+  Forgot Password?
+</p>
+
+<p className="bk-login-help">
+  An active BK KiSS Scanner subscription is required.
+</p>
+</form>
       </div>
     </main>
   );

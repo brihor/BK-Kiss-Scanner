@@ -104,3 +104,19 @@
   color: #777;
   font-size: 12px;
 }
+.bk-forgot-password {
+  margin-top: 16px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #c9ced6;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  user-select: none;
+}
+
+.bk-forgot-password:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}

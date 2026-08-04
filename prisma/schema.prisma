@@ -33,6 +33,7 @@ enum AssetType {
   GOLD
   CRYPTO
 }
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -47,9 +48,13 @@ model User {
   stripeCustomerId     String? @unique
   stripeSubscriptionId String? @unique
 
+  passwordResetToken   String?
+  passwordResetExpires DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 model PushToken {
   id        String   @id @default(cuid())
   token     String   @unique
