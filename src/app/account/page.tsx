@@ -1,12 +1,35 @@
 "use client";
 
-"use client";
-
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import "./account.css";
 
 export default function AccountPage() {
   const router = useRouter();
+
+  const [firstName, setFirstName] = useState("");
+
+  useEffect(() => {
+    async function loadUser() {
+      try {
+        const response = await fetch("/api/auth/me", {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = await response.json();
+
+        setFirstName(data.user?.firstName || "");
+      } catch (error) {
+        console.error("Unable to load account:", error);
+      }
+    }
+
+    loadUser();
+  }, []);
 
   async function logout() {
     await fetch("/api/auth/logout", {
@@ -47,14 +70,16 @@ export default function AccountPage() {
           <span>BK</span> KiSS SCANNER
         </div>
 
-        <h1>Welcome to Your Scanner</h1>
+        <h1>
+          Welcome to Your Scanner
+          {firstName ? `, ${firstName}` : ""}
+        </h1>
 
         <p className="account-subtitle">
           Your BK KiSS Scanner access is ready.
         </p>
 
         <div className="status-box">
-
           <span className="status-label">
             SUBSCRIPTION
           </span>
@@ -63,7 +88,6 @@ export default function AccountPage() {
             <span className="status-dot"></span>
             Active
           </div>
-
         </div>
 
         <button
@@ -124,11 +148,9 @@ export default function AccountPage() {
                 </div>
 
               </div>
-
             </a>
 
           </div>
-
         </div>
 
         <p className="app-note">

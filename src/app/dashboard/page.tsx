@@ -23,7 +23,6 @@ export default function DashboardPage() {
   const [soundEnabled, setSoundEnabled] = useState(true);
 
   useEffect(() => {
-    // Detect when the scanner is being displayed inside the mobile app
     const params = new URLSearchParams(window.location.search);
 
     if (params.get("app") === "1") {
@@ -50,6 +49,67 @@ export default function DashboardPage() {
     );
   }, [soundEnabled]);
 
+  useEffect(() => {
+    async function checkSubscription() {
+      try {
+        const response = await fetch("/api/auth/me", {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          handleInactiveSubscription();
+          return;
+        }
+
+        const data = await response.json();
+
+        if (
+          !data.user ||
+          !data.user.isActive ||
+          data.user.subscriptionStatus !== "ACTIVE"
+        ) {
+          handleInactiveSubscription();
+        }
+      } catch (error) {
+        console.error(
+          "Unable to verify subscription:",
+          error
+        );
+      }
+    }
+
+    function handleInactiveSubscription() {
+      const isMobileApp =
+        window.location.pathname.startsWith("/app-scanner");
+
+      if (
+        isMobileApp &&
+        window.ReactNativeWebView
+      ) {
+        window.ReactNativeWebView.postMessage(
+          JSON.stringify({
+            type: "SUBSCRIPTION_INACTIVE",
+          })
+        );
+
+        return;
+      }
+
+      window.location.href = "/login";
+    }
+
+    checkSubscription();
+
+    const interval = window.setInterval(
+      checkSubscription,
+      60 * 1000
+    );
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, []);
+
   function handleNotificationCategory(
     category: Exclude<FilterType, "ALL">
   ) {
@@ -58,8 +118,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="dashboard-page">
-      <div className="dashboard-shell">
+    <main>
+      <div className="dashboard-container">
         <Header />
 
         <SessionBar />

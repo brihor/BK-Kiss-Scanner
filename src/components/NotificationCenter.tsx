@@ -21,7 +21,7 @@ type Props = {
 function cleanPair(pair: string): string {
   return pair
     .replace(/^OANDA:/i, "")
-    .replace(/[_/\-\s]/g, "")
+    .replace(/[_/-\s]/g, "")
     .trim()
     .toUpperCase();
 }
@@ -92,6 +92,37 @@ function sendSignalToNativeApp(
   );
 }
 
+function playBrowserAlertSound() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  // Native apps handle their own notification sound.
+  // This prevents the WebView from playing a duplicate Swoosh.
+  if (window.ReactNativeWebView) {
+    return;
+  }
+
+  const savedSoundSetting =
+    localStorage.getItem("bk-sound-enabled");
+
+  // Sound defaults ON unless explicitly muted.
+  const soundEnabled = savedSoundSetting !== "false";
+
+  if (!soundEnabled) {
+    return;
+  }
+
+  const audio = new Audio("/sounds/swoosh.mp3");
+
+  audio.play().catch((error) => {
+    console.warn(
+      "Browser blocked KiSS alert sound:",
+      error
+    );
+  });
+}
+
 declare global {
   interface Window {
     ReactNativeWebView?: {
@@ -132,8 +163,12 @@ export default function NotificationCenter({
 
       const category = getSignalCategory(signal.pair);
 
-      // Send every new signal to the native mobile app.
+      // Native iPhone/Android app receives the signal here.
       sendSignalToNativeApp(signal, category);
+
+      // Browser plays Swoosh when sound is enabled.
+      // WebView skips this to avoid duplicate native + browser sounds.
+      playBrowserAlertSound();
 
       const signalIsVisible =
         activeFilter === "ALL" ||
@@ -197,7 +232,7 @@ export default function NotificationCenter({
   }
 
   return (
-    <div className="fixed right-5 top-5 z-[100] flex w-[360px] max-w-[calc(100vw-2rem)] flex-col gap-3">
+    <div>
       {notifications.map((notification) => {
         const direction =
           notification.signal.direction ??

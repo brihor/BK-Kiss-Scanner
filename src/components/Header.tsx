@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 export default function Header() {
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [firstName, setFirstName] = useState("");
 
   useEffect(() => {
     const saved = localStorage.getItem("bk-sound-enabled");
@@ -12,6 +13,26 @@ export default function Header() {
     if (saved !== null) {
       setSoundEnabled(saved === "true");
     }
+
+    async function loadUser() {
+      try {
+        const response = await fetch("/api/auth/me", {
+          cache: "no-store",
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = await response.json();
+
+        setFirstName(data.user?.firstName || "");
+      } catch (error) {
+        console.error("Unable to load scanner user:", error);
+      }
+    }
+
+    loadUser();
   }, []);
 
   function toggleSound() {
@@ -23,20 +44,20 @@ export default function Header() {
       "bk-sound-enabled",
       String(newValue)
     );
+
+    if (window.ReactNativeWebView) {
+      window.ReactNativeWebView.postMessage(
+        JSON.stringify({
+          type: "BK_SOUND_SETTING",
+          enabled: newValue,
+        })
+      );
+    }
   }
 
   return (
     <header className="bk-header">
-      <div className="bk-brand">
-        <Image
-          src="/images/BKLogo.png"
-          alt="BK Trading Academy"
-          width={190}
-          height={190}
-          className="bk-logo"
-          priority
-        />
-
+      <div className="owners-container">
         <Image
           src="/images/owners-new.jpeg"
           alt="Kenya and Brian"
@@ -53,6 +74,12 @@ export default function Header() {
         <p>
           Real Time Trading Opportunities Powered by KiSS
         </p>
+
+        {firstName && (
+          <div className="scanner-welcome">
+            Welcome, {firstName}
+          </div>
+        )}
       </div>
 
       <div className="live-container">
@@ -69,7 +96,6 @@ export default function Header() {
         </button>
 
         <span className="live-dot"></span>
-
         <span>LIVE</span>
       </div>
     </header>
