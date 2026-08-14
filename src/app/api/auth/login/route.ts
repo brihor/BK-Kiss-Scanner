@@ -7,9 +7,6 @@ export async function POST(request: Request) {
   try {
     const { email, password } = await request.json();
 
-    console.log("========== LOGIN ATTEMPT ==========");
-    console.log("Email entered:", email);
-
     if (!email || !password) {
       return NextResponse.json(
         { error: "Email and password are required." },
@@ -23,16 +20,12 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log("User found:", !!user);
-
     if (!user) {
       return NextResponse.json(
         { error: "USER_NOT_FOUND" },
         { status: 401 }
       );
     }
-
-    console.log("Password hash exists:", !!user.passwordHash);
 
     if (!user.passwordHash) {
       return NextResponse.json(
@@ -48,10 +41,6 @@ export async function POST(request: Request) {
       password,
       user.passwordHash
     );
-
-    console.log("Password matched:", passwordMatches);
-    console.log("isActive:", user.isActive);
-    console.log("subscriptionStatus:", user.subscriptionStatus);
 
     if (!passwordMatches) {
       return NextResponse.json(
@@ -74,12 +63,15 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log("Creating session...");
-
     const sessionToken = await createSessionToken(user.id);
 
     const response = NextResponse.json({
       success: true,
+
+      // Used by the native mobile app so its WebView can
+      // establish the same authenticated session.
+      sessionToken,
+
       user: {
         id: user.id,
         email: user.email,
@@ -97,9 +89,6 @@ export async function POST(request: Request) {
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
     });
-
-    console.log("LOGIN SUCCESS");
-    console.log("==============================");
 
     return response;
   } catch (error) {
