@@ -15,9 +15,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "BK KiSS Scanner",
   description: "BK KiSS Scanner market analysis platform",
-  icons: {
-    icon: "/favicon.ico",
-  },
 };
 
 export default function RootLayout({
