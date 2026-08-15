@@ -1,7 +1,12 @@
-import type { Viewport } from "next";
+import type { Metadata, Viewport } from "next";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+
+
+export const metadata: Metadata = {
+  title: "Scanner | BK KiSS",
+};
 
 export const viewport: Viewport = {
   width: "device-width",

@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
+
+export const metadata: Metadata = {
+  title: "Account | BK KiSS",
+};
 
 export default async function AccountLayout({
   children,
