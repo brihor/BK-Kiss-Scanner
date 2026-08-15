@@ -16,12 +16,76 @@ const LOCK_MINUTES = 15;
 const LOCK_DURATION_MS =
   LOCK_MINUTES * 60 * 1000;
 
+function isMarketClosed() {
+  const now = new Date();
+
+  const nyParts = new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    hour: "numeric",
+    hour12: false,
+    timeZone: "America/New_York",
+  }).formatToParts(now);
+
+  const nyDay =
+    nyParts.find(
+      (part) => part.type === "weekday"
+    )?.value ?? "";
+
+  const nyHour = Number(
+    nyParts.find(
+      (part) => part.type === "hour"
+    )?.value ?? "0"
+  );
+
+  const fridayAfterClose =
+    nyDay === "Fri" && nyHour >= 17;
+
+  const saturday =
+    nyDay === "Sat";
+
+  const sundayBeforeOpen =
+    nyDay === "Sun" && nyHour < 16;
+
+  return (
+    fridayAfterClose ||
+    saturday ||
+    sundayBeforeOpen
+  );
+}
+
 export async function GET() {
   try {
+    const now = Date.now();
+
+    // Do not scan or generate new alerts while
+    // the global trading market is closed.
+    if (isMarketClosed()) {
+      const storedSignals =
+        await getSignals();
+
+      const activeSignals =
+        storedSignals.map((signal) => ({
+          ...signal,
+
+          ageMinutes: Math.max(
+            0,
+            Math.floor(
+              (now -
+                new Date(
+                  signal.signalTime
+                ).getTime()) /
+                60000
+            )
+          ),
+        }));
+
+      return NextResponse.json(
+        activeSignals
+      );
+    }
+
     const scannerSignals =
       await scanMarket();
-
-    const now = Date.now();
 
     const currentPairs = new Set(
       scannerSignals.map(
