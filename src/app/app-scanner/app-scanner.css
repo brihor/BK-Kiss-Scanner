@@ -374,3 +374,25 @@ body {
   min-width: 0;
   overflow-x: hidden;
 }
+
+/* PORTRAIT APP — MAKE SCANNER TABLE EASIER TO READ */
+@media (orientation: portrait) {
+
+  .app-scanner-page table {
+    font-size: 14px !important;
+  }
+
+  .app-scanner-page th {
+    font-size: 12px !important;
+    font-weight: 800 !important;
+  }
+
+  .app-scanner-page td {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+  }
+
+  .app-scanner-page td span {
+    font-size: 14px !important;
+  }
+}
