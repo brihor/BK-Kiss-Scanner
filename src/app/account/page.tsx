@@ -137,6 +137,8 @@ export default function AccountPage() {
             <a
               href="https://play.google.com/store/apps/details?id=com.bktradingacademy.kissscanner"
               className="store-link"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <div className="google-placeholder">
 
