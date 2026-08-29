@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { readFileSync } from "fs";
 import { join } from "path";
+import { SignJWT } from "jose";
 import {
   Environment,
   SignedDataVerifier,
@@ -9,25 +10,52 @@ import { prisma } from "@/lib/prisma";
 
 const BUNDLE_ID = "com.bktradingacademy.bkkissscanner";
 const APPLE_APP_ID = 6795382295;
-const PRODUCT_ID = "com.bktradingacademy.bkkissscanner.monthly";
+const PRODUCT_ID =
+  "com.bktradingacademy.bkkissscanner.monthly";
+
+function getKey() {
+  const secret = process.env.SESSION_SECRET;
+
+  if (!secret) {
+    throw new Error(
+      "SESSION_SECRET is not configured."
+    );
+  }
+
+  return new TextEncoder().encode(secret);
+}
 
 function loadAppleRootCertificates() {
-  const certsDirectory = join(process.cwd(), "certs");
+  const certsDirectory = join(
+    process.cwd(),
+    "certs"
+  );
 
   return [
     readFileSync(
-      join(certsDirectory, "AppleIncRootCertificate.cer")
+      join(
+        certsDirectory,
+        "AppleIncRootCertificate.cer"
+      )
     ),
     readFileSync(
-      join(certsDirectory, "AppleRootCA-G2.cer")
+      join(
+        certsDirectory,
+        "AppleRootCA-G2.cer"
+      )
     ),
     readFileSync(
-      join(certsDirectory, "AppleRootCA-G3.cer")
+      join(
+        certsDirectory,
+        "AppleRootCA-G3.cer"
+      )
     ),
   ];
 }
 
-function createVerifier(environment: Environment) {
+function createVerifier(
+  environment: Environment
+) {
   return new SignedDataVerifier(
     loadAppleRootCertificates(),
     true,
@@ -36,26 +64,6 @@ function createVerifier(environment: Environment) {
     environment === Environment.PRODUCTION
       ? APPLE_APP_ID
       : undefined
-  );
-}
-
-function appleTransactionIsActive(
-  expiresDate: number | undefined
-) {
-  if (!expiresDate) {
-    return false;
-  }
-
-  return expiresDate > Date.now();
-}
-
-function stripeStatusGrantsAccess(
-  status: string | null | undefined
-) {
-  return (
-    status === "ACTIVE" ||
-    status === "TRIALING" ||
-    status === "PAST_DUE"
   );
 }
 
@@ -71,7 +79,10 @@ export async function POST(request: Request) {
       typeof signedTransactionInfo !== "string"
     ) {
       return NextResponse.json(
-        { error: "Missing signed Apple transaction." },
+        {
+          error:
+            "Missing signed Apple transaction.",
+        },
         { status: 400 }
       );
     }
@@ -79,37 +90,49 @@ export async function POST(request: Request) {
     let transaction;
 
     /*
-     * Production purchases verify against production.
-     * TestFlight/App Review/Sandbox purchases verify against sandbox.
+     * Try Production first.
+     * Sandbox/TestFlight/App Review falls back
+     * to the Sandbox verifier.
      */
     try {
-      const productionVerifier = createVerifier(
-        Environment.PRODUCTION
-      );
+      const productionVerifier =
+        createVerifier(
+          Environment.PRODUCTION
+        );
 
       transaction =
-        await productionVerifier.verifyAndDecodeTransaction(
-          signedTransactionInfo
-        );
+        await productionVerifier
+          .verifyAndDecodeTransaction(
+            signedTransactionInfo
+          );
     } catch {
-      const sandboxVerifier = createVerifier(
-        Environment.SANDBOX
-      );
+      const sandboxVerifier =
+        createVerifier(
+          Environment.SANDBOX
+        );
 
       transaction =
-        await sandboxVerifier.verifyAndDecodeTransaction(
-          signedTransactionInfo
-        );
+        await sandboxVerifier
+          .verifyAndDecodeTransaction(
+            signedTransactionInfo
+          );
     }
 
-    if (transaction.productId !== PRODUCT_ID) {
+    if (
+      transaction.productId !== PRODUCT_ID
+    ) {
       return NextResponse.json(
-        { error: "Invalid Apple subscription product." },
+        {
+          error:
+            "Invalid Apple subscription product.",
+        },
         { status: 400 }
       );
     }
 
-    if (!transaction.originalTransactionId) {
+    if (
+      !transaction.originalTransactionId
+    ) {
       return NextResponse.json(
         {
           error:
@@ -119,40 +142,36 @@ export async function POST(request: Request) {
       );
     }
 
-    if (!transaction.appAccountToken) {
+    if (!transaction.expiresDate) {
       return NextResponse.json(
         {
           error:
-            "Apple transaction could not be linked to a BK account.",
+            "Apple subscription expiration information is missing.",
         },
         { status: 400 }
       );
     }
 
     /*
-     * Find the BK account using the UUID that was supplied
-     * to Apple when the purchase began.
+     * The Apple subscription must currently
+     * be active before we allow account creation.
      */
-    const user = await prisma.user.findUnique({
-      where: {
-        appleAppAccountToken:
-          transaction.appAccountToken,
-      },
-    });
+    const appleActive =
+      transaction.expiresDate > Date.now();
 
-    if (!user) {
+    if (!appleActive) {
       return NextResponse.json(
         {
           error:
-            "No BK KiSS Scanner account matches this Apple purchase.",
+            "This Apple subscription is not active.",
         },
-        { status: 404 }
+        { status: 400 }
       );
     }
 
     /*
-     * Prevent one Apple subscription from being attached
-     * to two different BK accounts.
+     * Make sure this Apple subscription has not
+     * already been attached to another BK user.
      */
     const existingTransactionOwner =
       await prisma.user.findUnique({
@@ -162,67 +181,52 @@ export async function POST(request: Request) {
         },
       });
 
-    if (
-      existingTransactionOwner &&
-      existingTransactionOwner.id !== user.id
-    ) {
+    if (existingTransactionOwner) {
       return NextResponse.json(
         {
           error:
-            "This Apple subscription is already linked to another account.",
+            "This Apple subscription is already linked to a BK account. Please sign in or use Restore Purchases.",
         },
         { status: 409 }
       );
     }
 
-    const appleActive = appleTransactionIsActive(
-      transaction.expiresDate
-    );
+    /*
+     * Apple has verified the payment.
+     *
+     * IMPORTANT:
+     * We still DO NOT create a User here.
+     *
+     * Instead we create a short-lived secure
+     * setup token that allows the customer
+     * to create their BK login next.
+     */
+    const setupToken = await new SignJWT({
+      purpose: "apple-account-setup",
 
-    const stripeActive =
-      stripeStatusGrantsAccess(
-        user.stripeSubscriptionStatus
-      );
+      appleOriginalTransactionId:
+        transaction.originalTransactionId,
 
-    const hasAccess =
-      appleActive || stripeActive;
+      appleProductId:
+        transaction.productId,
 
-    const expiresAt =
-      transaction.expiresDate
-        ? new Date(transaction.expiresDate)
-        : null;
-
-    await prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        appleOriginalTransactionId:
-          transaction.originalTransactionId,
-
-        appleProductId:
-          transaction.productId,
-
-        appleSubscriptionStatus:
-          appleActive ? "ACTIVE" : "EXPIRED",
-
-        appleSubscriptionExpiresAt:
-          expiresAt,
-
-        subscriptionStatus:
-          hasAccess ? "ACTIVE" : "INACTIVE",
-
-        isActive:
-          hasAccess,
-      },
-    });
+      appleExpiresDate:
+        transaction.expiresDate,
+    })
+      .setProtectedHeader({
+        alg: "HS256",
+      })
+      .setIssuedAt()
+      .setExpirationTime("15m")
+      .sign(getKey());
 
     return NextResponse.json({
       success: true,
-      accessGranted: hasAccess,
-      appleSubscriptionActive: appleActive,
-      expiresAt:
-        expiresAt?.toISOString() ?? null,
+      purchaseVerified: true,
+      setupToken,
+      expiresAt: new Date(
+        transaction.expiresDate
+      ).toISOString(),
     });
   } catch (error) {
     console.error(

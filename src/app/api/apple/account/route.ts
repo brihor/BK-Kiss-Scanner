@@ -1,97 +1,246 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { randomUUID } from "crypto";
+import { jwtVerify } from "jose";
 import { prisma } from "@/lib/prisma";
+
+const PRODUCT_ID =
+  "com.bktradingacademy.bkkissscanner.monthly";
+
+function getKey() {
+  const secret = process.env.SESSION_SECRET;
+
+  if (!secret) {
+    throw new Error(
+      "SESSION_SECRET is not configured."
+    );
+  }
+
+  return new TextEncoder().encode(secret);
+}
 
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json();
+    const {
+      email,
+      password,
+      setupToken,
+    } = await request.json();
 
-    if (!email || !password) {
+    if (!email || !password || !setupToken) {
       return NextResponse.json(
-        { error: "Email and password are required." },
+        {
+          error:
+            "Email, password, and Apple purchase verification are required.",
+        },
         { status: 400 }
       );
     }
 
     if (password.length < 8) {
       return NextResponse.json(
-        { error: "Password must be at least 8 characters." },
+        {
+          error:
+            "Password must be at least 8 characters.",
+        },
         { status: 400 }
       );
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
-
-    const existingUser = await prisma.user.findUnique({
-      where: {
-        email: normalizedEmail,
-      },
-    });
-
     /*
-     * Existing BK customer:
-     * Do not overwrite their password or existing subscription information.
+     * Verify the short-lived token that was
+     * created only after Apple verified payment.
      */
-    if (existingUser) {
-      if (existingUser.passwordHash) {
-        return NextResponse.json(
-          {
-            error:
-              "An account already exists for this email. Please sign in instead.",
-          },
-          { status: 409 }
-        );
-      }
+    let payload;
 
-      const passwordHash = await bcrypt.hash(password, 12);
+    try {
+      const result = await jwtVerify(
+        setupToken,
+        getKey()
+      );
 
-      const user = await prisma.user.update({
-        where: {
-          id: existingUser.id,
+      payload = result.payload;
+    } catch {
+      return NextResponse.json(
+        {
+          error:
+            "Your Apple account setup session has expired. Please restore your purchase or try again.",
         },
-        data: {
-          passwordHash,
-          appleAppAccountToken:
-            existingUser.appleAppAccountToken ?? randomUUID(),
-        },
-      });
+        { status: 401 }
+      );
+    }
 
-      return NextResponse.json({
-        success: true,
-        userId: user.id,
-        appAccountToken: user.appleAppAccountToken,
-      });
+    if (
+      payload.purpose !==
+      "apple-account-setup"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Invalid Apple account setup.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const appleOriginalTransactionId =
+      payload.appleOriginalTransactionId;
+
+    const appleProductId =
+      payload.appleProductId;
+
+    const appleExpiresDate =
+      payload.appleExpiresDate;
+
+    if (
+      typeof appleOriginalTransactionId !==
+        "string" ||
+      typeof appleProductId !== "string" ||
+      typeof appleExpiresDate !== "number"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Apple purchase information is incomplete.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (appleProductId !== PRODUCT_ID) {
+      return NextResponse.json(
+        {
+          error:
+            "Invalid Apple subscription product.",
+        },
+        { status: 400 }
+      );
     }
 
     /*
-     * New Apple customer:
-     * Create the BK account before beginning the Apple purchase.
-     * Access remains inactive until Apple verifies the subscription.
+     * The subscription must still be active
+     * at the time the BK account is created.
      */
-    const passwordHash = await bcrypt.hash(password, 12);
+    if (appleExpiresDate <= Date.now()) {
+      return NextResponse.json(
+        {
+          error:
+            "Your Apple subscription is no longer active.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const normalizedEmail =
+      email.trim().toLowerCase();
+
+    /*
+     * Existing BK customers continue signing
+     * in normally. Do not overwrite them.
+     */
+    const existingUser =
+      await prisma.user.findUnique({
+        where: {
+          email: normalizedEmail,
+        },
+      });
+
+    if (existingUser) {
+      return NextResponse.json(
+        {
+          error:
+            "An account already exists for this email. Please sign in instead.",
+        },
+        { status: 409 }
+      );
+    }
+
+    /*
+     * Prevent one Apple subscription from
+     * being linked to multiple BK accounts.
+     */
+    const existingTransactionOwner =
+      await prisma.user.findUnique({
+        where: {
+          appleOriginalTransactionId,
+        },
+      });
+
+    if (existingTransactionOwner) {
+      return NextResponse.json(
+        {
+          error:
+            "This Apple subscription is already linked to another BK account.",
+        },
+        { status: 409 }
+      );
+    }
+
+    /*
+     * NOW the customer has paid.
+     *
+     * This is the point where the BK account
+     * is finally created.
+     */
+    const passwordHash =
+      await bcrypt.hash(password, 12);
+
+    const expiresAt = new Date(
+      appleExpiresDate
+    );
 
     const user = await prisma.user.create({
       data: {
         email: normalizedEmail,
+
         passwordHash,
-        appleAppAccountToken: randomUUID(),
-        appleSubscriptionStatus: "INACTIVE",
-        subscriptionStatus: "INACTIVE",
-        isActive: false,
+
+        appleOriginalTransactionId,
+
+        appleProductId,
+
+        appleSubscriptionStatus:
+          "ACTIVE",
+
+        appleSubscriptionExpiresAt:
+          expiresAt,
+
+        /*
+         * These are the fields the existing
+         * BK login/access system already uses.
+         */
+        subscriptionStatus:
+          "ACTIVE",
+
+        isActive: true,
       },
     });
 
     return NextResponse.json({
       success: true,
+
+      accountCreated: true,
+
       userId: user.id,
-      appAccountToken: user.appleAppAccountToken,
+
+      email: user.email,
+
+      subscriptionStatus:
+        user.subscriptionStatus,
+
+      isActive:
+        user.isActive,
     });
   } catch (error) {
-    console.error("APPLE ACCOUNT ERROR:", error);
+    console.error(
+      "APPLE ACCOUNT ERROR:",
+      error
+    );
 
     return NextResponse.json(
-      { error: "Unable to create your BK KiSS Scanner account." },
+      {
+        error:
+          "Unable to create your BK KiSS Scanner account.",
+      },
       { status: 500 }
     );
   }
