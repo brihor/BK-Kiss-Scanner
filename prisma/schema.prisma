@@ -45,8 +45,18 @@ model User {
 
   subscriptionStatus String @default("INACTIVE")
 
-  stripeCustomerId     String? @unique
-  stripeSubscriptionId String? @unique
+  // Stripe subscription
+  stripeCustomerId            String?   @unique
+  stripeSubscriptionId        String?   @unique
+  stripeSubscriptionStatus    String?   @default("INACTIVE")
+  stripeSubscriptionExpiresAt DateTime?
+
+  // Apple subscription
+  appleOriginalTransactionId String?   @unique
+  appleProductId             String?
+  appleSubscriptionStatus    String?   @default("INACTIVE")
+  appleSubscriptionExpiresAt DateTime?
+  appleAppAccountToken       String?   @unique
 
   passwordResetToken   String?
   passwordResetExpires DateTime?

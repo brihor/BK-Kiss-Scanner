@@ -6,6 +6,65 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 const SCANNER_PRODUCT_ID = "prod_UwdOmOPiFUt0zz";
 
+function stripeStatusGrantsAccess(status: string | null | undefined) {
+  return status === "ACTIVE" || status === "TRIALING" || status === "PAST_DUE";
+}
+
+function appleStatusGrantsAccess(
+  status: string | null | undefined,
+  expiresAt: Date | null | undefined
+) {
+  if (status !== "ACTIVE" && status !== "GRACE_PERIOD") {
+    return false;
+  }
+
+  if (!expiresAt) {
+    return status === "ACTIVE" || status === "GRACE_PERIOD";
+  }
+
+  return expiresAt.getTime() > Date.now();
+}
+
+async function refreshOverallAccess(userId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      stripeSubscriptionStatus: true,
+      appleSubscriptionStatus: true,
+      appleSubscriptionExpiresAt: true,
+    },
+  });
+
+  if (!user) {
+    return;
+  }
+
+  const stripeActive = stripeStatusGrantsAccess(
+    user.stripeSubscriptionStatus
+  );
+
+  const appleActive = appleStatusGrantsAccess(
+    user.appleSubscriptionStatus,
+    user.appleSubscriptionExpiresAt
+  );
+
+  const hasAccess = stripeActive || appleActive;
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      subscriptionStatus: hasAccess ? "ACTIVE" : "INACTIVE",
+      isActive: hasAccess,
+    },
+  });
+}
+
+async function refreshUsers(userIds: string[]) {
+  for (const userId of userIds) {
+    await refreshOverallAccess(userId);
+  }
+}
+
 export async function POST(req: NextRequest) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
@@ -65,20 +124,19 @@ export async function POST(req: NextRequest) {
             ? session.subscription
             : session.subscription?.id;
 
-          const subscription =
-            subscriptionId
-              ? await stripe.subscriptions.retrieve(subscriptionId)
-              : null;
+        const subscription = subscriptionId
+          ? await stripe.subscriptions.retrieve(subscriptionId)
+          : null;
 
-          const purchasedProductId =
-            subscription?.items.data[0]?.price?.product;
+        const purchasedProductId =
+          subscription?.items.data[0]?.price?.product;
 
-          if (purchasedProductId !== SCANNER_PRODUCT_ID) {
-            console.log(
-              `Ignoring non-scanner purchase: ${purchasedProductId}`
-            );
-            break;
-          }
+        if (purchasedProductId !== SCANNER_PRODUCT_ID) {
+          console.log(
+            `Ignoring non-scanner purchase: ${purchasedProductId}`
+          );
+          break;
+        }
 
         if (!email) {
           console.error("Checkout completed without customer email.");
@@ -101,7 +159,7 @@ export async function POST(req: NextRequest) {
             ? nameParts.slice(1).join(" ")
             : null;
 
-        await prisma.user.upsert({
+        const user = await prisma.user.upsert({
           where: {
             email: normalizedEmail,
           },
@@ -110,8 +168,7 @@ export async function POST(req: NextRequest) {
             lastName,
             stripeCustomerId: customerId ?? null,
             stripeSubscriptionId: subscriptionId ?? null,
-            subscriptionStatus: "ACTIVE",
-            isActive: true,
+            stripeSubscriptionStatus: "ACTIVE",
           },
           create: {
             email: normalizedEmail,
@@ -119,10 +176,13 @@ export async function POST(req: NextRequest) {
             lastName,
             stripeCustomerId: customerId ?? null,
             stripeSubscriptionId: subscriptionId ?? null,
+            stripeSubscriptionStatus: "ACTIVE",
             subscriptionStatus: "ACTIVE",
             isActive: true,
           },
         });
+
+        await refreshOverallAccess(user.id);
 
         console.log(
           `Scanner subscription activated for ${normalizedEmail}.`
@@ -136,26 +196,24 @@ export async function POST(req: NextRequest) {
         const subscription =
           event.data.object as Stripe.Subscription;
 
-          const purchasedProductId =
-            subscription.items.data[0]?.price?.product;
+        const purchasedProductId =
+          subscription.items.data[0]?.price?.product;
 
-          if (purchasedProductId !== SCANNER_PRODUCT_ID) {
-            console.log(
-              `Ignoring non-scanner subscription: ${purchasedProductId}`
-            );
-            break;
-          }
+        if (purchasedProductId !== SCANNER_PRODUCT_ID) {
+          console.log(
+            `Ignoring non-scanner subscription: ${purchasedProductId}`
+          );
+          break;
+        }
 
         const customerId =
           typeof subscription.customer === "string"
             ? subscription.customer
             : subscription.customer.id;
 
-        const active =
-          subscription.status === "active" ||
-          subscription.status === "trialing";
+        const status = subscription.status.toUpperCase();
 
-        await prisma.user.updateMany({
+        const users = await prisma.user.findMany({
           where: {
             OR: [
               {
@@ -166,14 +224,25 @@ export async function POST(req: NextRequest) {
               },
             ],
           },
+          select: {
+            id: true,
+          },
+        });
+
+        await prisma.user.updateMany({
+          where: {
+            id: {
+              in: users.map((user) => user.id),
+            },
+          },
           data: {
             stripeCustomerId: customerId,
             stripeSubscriptionId: subscription.id,
-            subscriptionStatus:
-              subscription.status.toUpperCase(),
-            isActive: active,
+            stripeSubscriptionStatus: status,
           },
         });
+
+        await refreshUsers(users.map((user) => user.id));
 
         break;
       }
@@ -192,15 +261,27 @@ export async function POST(req: NextRequest) {
           break;
         }
 
-        await prisma.user.updateMany({
+        const users = await prisma.user.findMany({
           where: {
             stripeSubscriptionId: subscription.id,
           },
-          data: {
-            subscriptionStatus: "CANCELED",
-            isActive: false,
+          select: {
+            id: true,
           },
         });
+
+        await prisma.user.updateMany({
+          where: {
+            id: {
+              in: users.map((user) => user.id),
+            },
+          },
+          data: {
+            stripeSubscriptionStatus: "CANCELED",
+          },
+        });
+
+        await refreshUsers(users.map((user) => user.id));
 
         break;
       }
@@ -217,33 +298,45 @@ export async function POST(req: NextRequest) {
 
         if (!subscriptionId) {
           break;
-      }
+        }
 
-      const subscription =
-        await stripe.subscriptions.retrieve(subscriptionId);
+        const subscription =
+          await stripe.subscriptions.retrieve(subscriptionId);
 
-      const purchasedProductId =
-        subscription.items.data[0]?.price?.product;
+        const purchasedProductId =
+          subscription.items.data[0]?.price?.product;
 
-      if (purchasedProductId !== SCANNER_PRODUCT_ID) {
-        console.log(
-          `Ignoring non-scanner invoice: ${purchasedProductId}`
-        );
+        if (purchasedProductId !== SCANNER_PRODUCT_ID) {
+          console.log(
+            `Ignoring non-scanner invoice: ${purchasedProductId}`
+          );
+          break;
+        }
+
+        const users = await prisma.user.findMany({
+          where: {
+            stripeSubscriptionId: subscription.id,
+          },
+          select: {
+            id: true,
+          },
+        });
+
+        await prisma.user.updateMany({
+          where: {
+            id: {
+              in: users.map((user) => user.id),
+            },
+          },
+          data: {
+            stripeSubscriptionStatus: "ACTIVE",
+          },
+        });
+
+        await refreshUsers(users.map((user) => user.id));
+
         break;
       }
-
-      await prisma.user.updateMany({
-        where: {
-          stripeSubscriptionId: subscription.id,
-        },
-        data: {
-          subscriptionStatus: "ACTIVE",
-          isActive: true,
-        },
-      });
-
-      break;
-    }
 
       case "invoice.payment_failed": {
         const invoice = event.data.object as Stripe.Invoice & {
@@ -262,33 +355,44 @@ export async function POST(req: NextRequest) {
         const subscription =
           await stripe.subscriptions.retrieve(subscriptionId);
 
-      const purchasedProductId =
-        subscription.items.data[0]?.price?.product;
+        const purchasedProductId =
+          subscription.items.data[0]?.price?.product;
 
-      if (purchasedProductId !== SCANNER_PRODUCT_ID) {
-        console.log(
-          `Ignoring non-scanner failed payment: ${purchasedProductId}`
-        );
+        if (purchasedProductId !== SCANNER_PRODUCT_ID) {
+          console.log(
+            `Ignoring non-scanner failed payment: ${purchasedProductId}`
+          );
+          break;
+        }
+
+        const users = await prisma.user.findMany({
+          where: {
+            stripeSubscriptionId: subscription.id,
+          },
+          select: {
+            id: true,
+          },
+        });
+
+        await prisma.user.updateMany({
+          where: {
+            id: {
+              in: users.map((user) => user.id),
+            },
+          },
+          data: {
+            stripeSubscriptionStatus: "PAST_DUE",
+          },
+        });
+
+        // Keep access temporarily while Stripe retries payment.
+        await refreshUsers(users.map((user) => user.id));
+
         break;
       }
 
-      await prisma.user.updateMany({
-        where: {
-          stripeSubscriptionId: subscription.id,
-        },
-        data: {
-          subscriptionStatus: "PAST_DUE",
-        },
-      });
-
-      // Keep access temporarily while Stripe retries payment.
-      break;
-    }
-
       default:
-        console.log(
-          `Unhandled Stripe event: ${event.type}`
-        );
+        console.log(`Unhandled Stripe event: ${event.type}`);
     }
 
     return NextResponse.json({
