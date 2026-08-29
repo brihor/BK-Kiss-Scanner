@@ -36,8 +36,7 @@ function createVerifier(environment: Environment) {
 function stripeGrantsAccess(status: string | null | undefined) {
   return (
     status === "ACTIVE" ||
-    status === "TRIALING" ||
-    status === "PAST_DUE"
+    status === "TRIALING"
   );
 }
 
