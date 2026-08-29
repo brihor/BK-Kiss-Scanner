@@ -7,7 +7,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const SCANNER_PRODUCT_ID = "prod_UwdOmOPiFUt0zz";
 
 function stripeStatusGrantsAccess(status: string | null | undefined) {
-  return status === "ACTIVE" || status === "TRIALING" || status === "PAST_DUE";
+  return status === "ACTIVE" || status === "TRIALING";
 }
 
 function appleStatusGrantsAccess(
@@ -385,7 +385,7 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        // Keep access temporarily while Stripe retries payment.
+        // Remove scanner access while the Stripe payment is past due.
         await refreshUsers(users.map((user) => user.id));
 
         break;
