@@ -16,7 +16,11 @@ export async function POST(request: Request) {
       where: { id: userId },
     });
 
-    if (!user || !user.isActive) {
+    if (
+      !user ||
+      !user.isActive ||
+      user.subscriptionStatus !== "ACTIVE"
+  ) {
       return NextResponse.json(
         { error: "Invalid or inactive user." },
         { status: 403 }

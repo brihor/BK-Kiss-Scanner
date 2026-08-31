@@ -5,7 +5,34 @@ export async function sendSignalPushNotification(
   signal: Signal
 ) {
   try {
-    const pushTokens = await prisma.pushToken.findMany();
+    // Get only users who currently have scanner access.
+    const activeUsers = await prisma.user.findMany({
+      where: {
+        isActive: true,
+        subscriptionStatus: "ACTIVE",
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (activeUsers.length === 0) {
+      return;
+    }
+
+    const activeUserIds = activeUsers.map((user) => user.id);
+
+    // Get push tokens belonging only to active subscribers.
+    const pushTokens = await prisma.pushToken.findMany({
+      where: {
+        userId: {
+          in: activeUserIds,
+        },
+      },
+      select: {
+        token: true,
+      },
+    });
 
     if (pushTokens.length === 0) {
       return;
