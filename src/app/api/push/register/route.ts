@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       !user ||
       !user.isActive ||
       user.subscriptionStatus !== "ACTIVE"
-  ) {
+    ) {
       return NextResponse.json(
         { error: "Invalid or inactive user." },
         { status: 403 }
@@ -48,6 +48,34 @@ export async function POST(request: Request) {
 
     return NextResponse.json(
       { error: "Unable to register device." },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { token } = await request.json();
+
+    if (!token) {
+      return NextResponse.json(
+        { error: "Token is required." },
+        { status: 400 }
+      );
+    }
+
+    await prisma.pushToken.deleteMany({
+      where: { token },
+    });
+
+    return NextResponse.json({
+      success: true,
+    });
+  } catch (error) {
+    console.error("Push unregister error:", error);
+
+    return NextResponse.json(
+      { error: "Unable to unregister device." },
       { status: 500 }
     );
   }
