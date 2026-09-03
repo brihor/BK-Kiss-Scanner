@@ -10,6 +10,8 @@ function SetupPasswordForm() {
   const [email, setEmail] = useState(emailFromUrl);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -156,49 +158,107 @@ function SetupPasswordForm() {
             Create Password
           </label>
 
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            required
-            minLength={8}
+          <div
             style={{
-              width: "100%",
-              padding: "14px",
+              position: "relative",
               marginBottom: "18px",
-              borderRadius: "8px",
-              border: "1px solid #3a4652",
-              background: "rgba(4, 9, 14, 0.88)",
-              color: "#ffffff",
-              boxSizing: "border-box",
-              fontSize: "16px",
             }}
-          />
+          >
+            <input
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+              minLength={8}
+              style={{
+                width: "100%",
+                padding: "14px 50px 14px 14px",
+                borderRadius: "8px",
+                border: "1px solid #3a4652",
+                background: "rgba(4, 9, 14, 0.88)",
+                color: "#ffffff",
+                boxSizing: "border-box",
+                fontSize: "16px",
+              }}
+            />
+
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              style={{
+                position: "absolute",
+                right: "14px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "transparent",
+                border: "none",
+                color: "#b7bec7",
+                cursor: "pointer",
+                fontSize: "18px",
+                padding: "4px",
+              }}
+            >
+              {showPassword ? "🙈" : "👁️"}
+            </button>
+          </div>
 
           <label style={{ display: "block", marginBottom: "8px" }}>
             Confirm Password
           </label>
 
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(event) =>
-              setConfirmPassword(event.target.value)
-            }
-            required
-            minLength={8}
+          <div
             style={{
-              width: "100%",
-              padding: "14px",
+              position: "relative",
               marginBottom: "22px",
-              borderRadius: "8px",
-              border: "1px solid #3a4652",
-              background: "rgba(4, 9, 14, 0.88)",
-              color: "#ffffff",
-              boxSizing: "border-box",
-              fontSize: "16px",
             }}
-          />
+          >
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              value={confirmPassword}
+              onChange={(event) =>
+                setConfirmPassword(event.target.value)
+              }
+              required
+              minLength={8}
+              style={{
+                width: "100%",
+                padding: "14px 50px 14px 14px",
+                borderRadius: "8px",
+                border: "1px solid #3a4652",
+                background: "rgba(4, 9, 14, 0.88)",
+                color: "#ffffff",
+                boxSizing: "border-box",
+                fontSize: "16px",
+              }}
+            />
+
+            <button
+              type="button"
+              onClick={() =>
+                setShowConfirmPassword(!showConfirmPassword)
+              }
+              aria-label={
+                showConfirmPassword
+                  ? "Hide confirm password"
+                  : "Show confirm password"
+              }
+              style={{
+                position: "absolute",
+                right: "14px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "transparent",
+                border: "none",
+                color: "#b7bec7",
+                cursor: "pointer",
+                fontSize: "18px",
+                padding: "4px",
+              }}
+            >
+              {showConfirmPassword ? "🙈" : "👁️"}
+            </button>
+          </div>
 
           {error && (
             <p style={{ color: "#ff6b6b", marginBottom: "18px" }}>
