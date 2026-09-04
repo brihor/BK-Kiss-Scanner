@@ -294,6 +294,71 @@ function SetupPasswordForm() {
           </button>
         </form>
 
+        {/* RETURNING SUBSCRIBER */}
+        <div
+          style={{
+            marginTop: "30px",
+            padding: "22px",
+            borderRadius: "12px",
+            border: "1px solid rgba(255,255,255,0.18)",
+            background: "rgba(255,255,255,0.055)",
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{
+              width: "42px",
+              height: "3px",
+              background: "#b21f24",
+              borderRadius: "10px",
+              margin: "0 auto 14px",
+            }}
+          />
+
+          <h2
+            style={{
+              fontSize: "18px",
+              margin: "0 0 9px",
+              letterSpacing: "0.5px",
+            }}
+          >
+            RETURNING SUBSCRIBER?
+          </h2>
+
+          <p
+            style={{
+              color: "#b7bec7",
+              fontSize: "14px",
+              lineHeight: "1.55",
+              margin: "0 0 17px",
+            }}
+          >
+            If you&apos;ve created a password previously while using the same email
+            address, sign in here. If you&apos;ve forgotten your password, reset it
+            from the Sign In page. CLICK BELOW
+          </p>
+
+          <button
+            type="button"
+            onClick={() => {
+              window.location.href = "/login";
+            }}
+            style={{
+              width: "100%",
+              padding: "13px",
+              background: "transparent",
+              color: "#ffffff",
+              border: "1px solid #b21f24",
+              borderRadius: "8px",
+              fontSize: "16px",
+              fontWeight: "700",
+              cursor: "pointer",
+            }}
+          >
+            SIGN IN
+          </button>
+        </div>
+
         <p
           style={{
             color: "#737d88",
