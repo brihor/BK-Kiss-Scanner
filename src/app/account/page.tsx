@@ -125,13 +125,16 @@ export default function AccountPage() {
 
             <a
               href="#"
-              className="store-link"
+              className="store-link apple-store-link"
             >
               <img
                 src="/images/app-store-badge.svg"
                 className="store-badge"
                 alt="Download on the App Store"
               />
+              <span className="coming-soon-stamp">
+                COMING SOON
+              </span>
             </a>
 
             <a

@@ -279,3 +279,25 @@ width:100%;
 }
 
 }
+.apple-store-link {
+  position: relative;
+}
+
+.coming-soon-stamp {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-8deg);
+  background: #C8102E;
+  color: #FFFFFF;
+  border: 2px solid #FFFFFF;
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  line-height: 1;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
