@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+
 import { SignJWT, jwtVerify } from "jose";
 
 function getKey() {
@@ -22,26 +23,27 @@ export async function createSessionToken(userId: string) {
 export async function verifySessionToken(token: string) {
   try {
     const { payload } = await jwtVerify(token, getKey());
+
     return payload;
   } catch (error) {
+    console.error("SESSION VERIFY DIAGNOSTIC:", {
+      name:
+        error instanceof Error
+          ? error.name
+          : "Unknown",
+      message:
+        error instanceof Error
+          ? error.message
+          : "Unknown error",
+    });
 
-  console.error("SESSION VERIFY DIAGNOSTIC:", {
-    name:
-      error instanceof Error
-        ? error.name
-        : "Unknown",
-    message:
-      error instanceof Error
-        ? error.message
-        : "Unknown error",
-  });
-
-  return null;
-
+    return null;
+  }
 }
 
 export async function getSession() {
   const cookieStore = await cookies();
+
   const token = cookieStore.get("bk_session")?.value;
 
   if (!token) {
