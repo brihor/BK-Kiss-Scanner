@@ -20,9 +20,15 @@ export async function DELETE(request: NextRequest) {
     }
 
     const session =
-      await verifySessionToken(sessionCookie);
+  await verifySessionToken(sessionCookie);
 
-    const userId =
+console.log("DELETE TOKEN VERIFICATION:", {
+  verified: Boolean(session),
+  hasUserId:
+    typeof session?.userId === "string",
+});
+
+const userId =
       typeof session?.userId === "string"
         ? session.userId
         : null;
