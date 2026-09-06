@@ -25,18 +25,7 @@ export async function verifySessionToken(token: string) {
     const { payload } = await jwtVerify(token, getKey());
 
     return payload;
-  } catch (error) {
-    console.error("SESSION VERIFY DIAGNOSTIC:", {
-      name:
-        error instanceof Error
-          ? error.name
-          : "Unknown",
-      message:
-        error instanceof Error
-          ? error.message
-          : "Unknown error",
-    });
-
+  } catch {
     return null;
   }
 }

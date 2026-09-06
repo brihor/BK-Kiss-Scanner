@@ -65,12 +65,6 @@ export async function POST(request: Request) {
 
     const sessionToken = await createSessionToken(user.id);
 
-    console.log("LOGIN TOKEN DIAGNOSTIC:", {
-      tokenType: typeof sessionToken,
-      tokenLength: sessionToken.length,
-      segmentCount: sessionToken.split(".").length,
-    });
-
     const response = NextResponse.json({
       success: true,
 

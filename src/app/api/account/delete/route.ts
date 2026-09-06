@@ -7,11 +7,6 @@ export async function DELETE(request: NextRequest) {
     const sessionCookie =
       request.cookies.get("bk_session")?.value;
 
-    console.log("DELETE ACCOUNT DIAGNOSTIC:", {
-      hasSessionCookie: Boolean(sessionCookie),
-      cookieLength: sessionCookie?.length ?? 0,
-  });
-
     if (!sessionCookie) {
       return NextResponse.json(
         { error: "Unauthorized." },
@@ -20,15 +15,9 @@ export async function DELETE(request: NextRequest) {
     }
 
     const session =
-  await verifySessionToken(sessionCookie);
+      await verifySessionToken(sessionCookie);
 
-console.log("DELETE TOKEN VERIFICATION:", {
-  verified: Boolean(session),
-  hasUserId:
-    typeof session?.userId === "string",
-});
-
-const userId =
+    const userId =
       typeof session?.userId === "string"
         ? session.userId
         : null;
