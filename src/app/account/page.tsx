@@ -124,17 +124,16 @@ export default function AccountPage() {
           <div className="store-buttons">
 
             <a
-              href="#"
+              href="https://apps.apple.com/app/bk-kiss-scanner/id6795382295"
               className="store-link apple-store-link"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <img
                 src="/images/app-store-badge.svg"
                 className="store-badge"
                 alt="Download on the App Store"
               />
-              <span className="coming-soon-stamp">
-                COMING SOON
-              </span>
             </a>
 
             <a
