@@ -73,3 +73,20 @@ model PushToken {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+model SignalPerformance {
+  id          String   @id @default(cuid())
+  pair        String
+  assetType   AssetType
+  direction   String
+  entry       Float
+  takeProfit  Float
+  stopLoss    Float
+  signalTime  DateTime
+  outcome     String?
+  outcomeTime DateTime?
+  createdAt   DateTime @default(now())
+
+  @@index([signalTime])
+  @@index([pair])
+  @@index([outcome])
+}

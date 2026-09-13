@@ -1,4 +1,5 @@
 import { sendSignalPushNotification } from "@/lib/pushNotifications";
+import { recordPerformanceSignal } from "@/lib/performanceStore";
 import { scanMarket } from "@/lib/scanner";
 import {
   addSignal,
@@ -105,6 +106,8 @@ export async function processSignals(): Promise<Signal[]> {
       };
 
       await addSignal(newSignal);
+
+      await recordPerformanceSignal(newSignal);
 
       await sendSignalPushNotification(newSignal);
 
