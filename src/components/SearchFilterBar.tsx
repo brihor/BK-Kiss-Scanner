@@ -147,6 +147,53 @@ export default function SearchFilterBar({
               </button>
             );
           })}
+
+
+
+
+          <button
+            type="button"
+            onClick={() => (window.location.href = "/notifications")}
+            className="relative flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-800 px-6 py-3 font-semibold text-gray-300 transition duration-200 hover:border-zinc-500 hover:bg-zinc-700"
+          >
+            <span>🔔</span>
+            <span>NOTIFICATIONS</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => (window.location.href = "/performance")}
+            className="relative flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-800 px-6 py-3 font-semibold text-gray-300 transition duration-200 hover:border-zinc-500 hover:bg-zinc-700"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-5 w-5 text-gray-400"
+              aria-hidden="true"
+            >
+              <path d="M4 19V10" />
+              <path d="M10 19V5" />
+              <path d="M16 19v-7" />
+              <path d="M22 19H2" />
+            </svg>
+            <span>PERFORMANCE</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => window.open("https://www.youtube.com/", "_blank")}
+            className="relative flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-800 px-6 py-3 font-semibold text-gray-300 transition duration-200 hover:border-zinc-500 hover:bg-zinc-700"
+          >
+            <span>▶</span>
+            <span>HOW TO USE SCANNER</span>
+          </button>
+          
+
+          
         </div>
       </div>
     </div>

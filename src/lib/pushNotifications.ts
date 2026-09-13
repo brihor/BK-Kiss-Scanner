@@ -13,6 +13,7 @@ export async function sendSignalPushNotification(
       },
       select: {
         id: true,
+        disabledPushInstruments: true,
       },
     });
 
@@ -20,13 +21,22 @@ export async function sendSignalPushNotification(
       return;
     }
 
-    const activeUserIds = activeUsers.map((user) => user.id);
+    const eligibleUserIds = activeUsers
+      .filter(
+        (user) =>
+          !user.disabledPushInstruments.includes(signal.pair)
+      )
+      .map((user) => user.id);
 
-    // Get push tokens belonging only to active subscribers.
+    if (eligibleUserIds.length === 0) {
+      return;
+    }
+
+    // Get push tokens only for users who want this instrument.
     const pushTokens = await prisma.pushToken.findMany({
       where: {
         userId: {
-          in: activeUserIds,
+          in: eligibleUserIds,
         },
       },
       select: {

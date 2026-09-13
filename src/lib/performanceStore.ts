@@ -12,8 +12,10 @@ function getAssetType(pair: string): AssetType {
   if (
     p === "NAS100" ||
     p === "NAS100USD" ||
+    p === "NAS100_USD" ||
     p === "US30" ||
-    p === "US30USD"
+    p === "US30USD" ||
+    p === "US30_USD"
   ) {
     return AssetType.INDICES;
   }
@@ -35,4 +37,32 @@ export async function recordPerformanceSignal(
       signalTime: new Date(signal.signalTime),
     },
   });
+}
+
+export async function getPendingPerformanceSignals() {
+  return prisma.signalPerformance.findMany({
+    where: {
+      outcome: null,
+    },
+    orderBy: {
+      signalTime: "asc",
+    },
+  });
+}
+
+export async function markPerformanceOutcome(
+  id: string,
+  outcome: "TP" | "SL" | "AMBIGUOUS"
+): Promise<void> {
+  await prisma.signalPerformance.update({
+    where: { id },
+    data: {
+      outcome,
+      outcomeTime: new Date(),
+    },
+  });
+}
+
+export async function clearPerformanceHistory(): Promise<void> {
+  await prisma.signalPerformance.deleteMany({});
 }

@@ -104,6 +104,9 @@ export default function ScannerTable({
   const [isLoading, setIsLoading] =
     useState(true);
 
+  const [disabledInstruments, setDisabledInstruments] =
+    useState<string[]>([]);
+
   useEffect(() => {
     const timer = window.setInterval(() => {
       setNow(Date.now());
@@ -111,6 +114,52 @@ export default function ScannerTable({
 
     return () => {
       window.clearInterval(timer);
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadPreferences() {
+      try {
+        const response = await fetch(
+          "/api/push/preferences",
+          { cache: "no-store" }
+        );
+
+        if (!response.ok) return;
+
+        const data = await response.json();
+
+        if (
+          isMounted &&
+          Array.isArray(data.disabledInstruments)
+        ) {
+          setDisabledInstruments(
+            data.disabledInstruments
+          );
+        }
+      } catch (error) {
+        console.error(
+          "Unable to load scanner preferences:",
+          error
+        );
+      }
+    }
+
+    loadPreferences();
+
+    const preferenceInterval =
+      window.setInterval(
+        loadPreferences,
+        30000
+      );
+
+    return () => {
+      isMounted = false;
+      window.clearInterval(
+        preferenceInterval
+      );
     };
   }, []);
 
@@ -177,6 +226,18 @@ export default function ScannerTable({
     return signals.filter((signal) => {
       const pair = signal.pair;
 
+      const normalizedPair = cleanPair(pair);
+
+      const isDisabled =
+        disabledInstruments.some(
+          (instrument) =>
+            cleanPair(instrument) === normalizedPair
+        );
+
+      if (isDisabled) {
+        return false;
+      }
+
       const matchesCategory =
         activeFilter === "ALL" ||
         (activeFilter === "METALS" &&
@@ -199,6 +260,7 @@ export default function ScannerTable({
     signals,
     activeFilter,
     searchTerm,
+    disabledInstruments,
   ]);
 
   function getEmptyMessage(): string {
@@ -220,7 +282,7 @@ export default function ScannerTable({
   return (
     <>
       <NotificationCenter
-        signals={signals}
+        signals={filteredSignals}
         activeFilter={activeFilter}
         onViewCategory={
           onViewCategory
@@ -237,9 +299,14 @@ export default function ScannerTable({
           <div className="flex items-center gap-3">
             <span className="h-3 w-3 rounded-full bg-red-500 shadow-[0_0_12px_rgba(239,68,68,1)]" />
 
-            <h2 className="text-xl font-bold uppercase tracking-wide text-white">
-              Live Scanner
-            </h2>
+            <div>
+              <h2 className="text-xl font-bold uppercase tracking-wide text-white">
+                Live Scanner
+              </h2>
+              <p className="mt-1 text-sm font-extrabold uppercase tracking-wide text-yellow-400">
+                SCALPING / INTRADAY • 15 MIN TIMEFRAME • OVERBOUGHT / OVERSOLD
+              </p>
+            </div>
           </div>
 
           <div className="flex items-center gap-2 text-sm text-gray-400">
@@ -269,7 +336,7 @@ export default function ScannerTable({
           <table className="w-full min-w-[850px] border-collapse">
             <thead className="bg-zinc-900 text-sm uppercase tracking-wide text-gray-300">
               <tr>
-                <th className="w-[240px] border-b border-r border-zinc-800 px-5 py-4 text-left">
+                <th className="w-[240px] border-b border-r border-zinc-800 px-5 py-4 text-center">
                   Pair
                 </th>
 

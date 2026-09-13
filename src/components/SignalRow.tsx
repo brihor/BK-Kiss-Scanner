@@ -96,12 +96,8 @@ export default function SignalRow({ signal, now }: Props) {
 
   return (
     <tr className="border-t border-zinc-800 transition-colors hover:bg-zinc-800/40">
-      <td className="p-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-zinc-700 bg-zinc-800 text-xs font-bold text-gray-300">
-            {cleanPair(signal.pair).slice(0, 2)}
-          </div>
-
+      <td className="p-4 text-center">
+        <div className="flex items-center justify-center">
           <span className="font-semibold text-white">
             {formatPair(signal.pair)}
           </span>
