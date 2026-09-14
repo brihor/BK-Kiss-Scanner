@@ -27,6 +27,9 @@ export default function DashboardPage() {
 
     if (params.get("app") === "1") {
       document.documentElement.classList.add("bk-app-mode");
+      requestAnimationFrame(() => {
+        window.dispatchEvent(new Event("resize"));
+      });
     } else {
       document.documentElement.classList.remove("bk-app-mode");
     }
