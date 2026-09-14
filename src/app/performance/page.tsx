@@ -33,8 +33,6 @@ export default function PerformancePage() {
     return () => clearInterval(interval);
   }, [days, filter]);
 
-  const winRate = data?.winRate ?? 0;
-
   return (
     <main className="performance-page">
       <div className="performance-container">
@@ -74,9 +72,9 @@ export default function PerformancePage() {
           </select>
         </div>
 
-        <h1>Scanner Performance</h1>
+        <h1>Scanner Activity</h1>
         <p className="performance-subtitle">
-          Performance of completed KiSS Scanner alerts.
+          See how actively the KiSS Scanner is identifying market alignments.
         </p>
 
         <div className="day-filter">
@@ -92,60 +90,34 @@ export default function PerformancePage() {
         </div>
 
         <p className="trading-days-note">
-          Trading days only • Sunday session included • Results are combined for the selected period
+          Trading days only • Sunday session included • Alerts are combined for the selected period
         </p>
 
-        <section className="performance-summary">
-          <div
-            className="performance-circle"
-            style={{
-              background:
-                  data?.completed && data.completed > 0
-                    ? `conic-gradient(#2ecc71 0% ${winRate}%, #ff4d4d ${winRate}% 100%)`
-                    : "#292929",
-            }}
-          >
-            <div className="performance-circle-inner">
-              <span>{winRate}%</span>
-              <small>TP Hit Rate</small>
-            </div>
-          </div>
-
-          <div className="performance-stats">
-            <div className="stat-card tp">
-              <span>Take Profit Hits</span>
-              <strong>{data?.tp ?? 0}</strong>
-            </div>
-
-            <div className="stat-card sl">
-              <span>Stop Loss Hits</span>
-              <strong>{data?.sl ?? 0}</strong>
-            </div>
-
-            <div className="stat-card">
-              <span>Total Alerts</span>
-              <strong>{data?.totalAlerts ?? 0}</strong>
-            </div>
+        <section className="performance-summary activity-summary">
+          <div className="activity-total-card">
+            <span className="activity-label">TOTAL ALERTS</span>
+            <strong>{data?.totalAlerts ?? 0}</strong>
+            <p>KiSS Scanner alignments detected</p>
           </div>
         </section>
 
         <section className="asset-section">
-          <h2>Performance by Asset Class</h2>
+          <h2>Scanner Coverage</h2>
 
           <div className="asset-grid">
             <div className="asset-card">
               <h3>💱 Forex</h3>
-              <span>Performance tracking active</span>
+              <span>KiSS Scanner monitoring active</span>
             </div>
 
             <div className="asset-card">
               <h3>🥇 Metals</h3>
-              <span>Performance tracking active</span>
+              <span>KiSS Scanner monitoring active</span>
             </div>
 
             <div className="asset-card">
               <h3>📈 Indices</h3>
-              <span>Performance tracking active</span>
+              <span>KiSS Scanner monitoring active</span>
             </div>
           </div>
         </section>

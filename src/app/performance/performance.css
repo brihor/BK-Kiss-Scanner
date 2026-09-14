@@ -270,3 +270,58 @@
   color: #facc15;
   opacity: 0.9;
 }
+
+/* Scanner Activity summary */
+.performance-summary.activity-summary {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.activity-total-card {
+  width: 100%;
+  max-width: 560px;
+  background: linear-gradient(145deg, #181818, #0d0d0d);
+  border: 1px solid rgba(224, 0, 42, 0.45);
+  border-radius: 16px;
+  padding: 28px 24px;
+  text-align: center;
+  box-shadow:
+    0 0 24px rgba(224, 0, 42, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.activity-total-card .activity-label {
+  display: block;
+  color: #aaa;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.activity-total-card strong {
+  display: block;
+  color: #fff;
+  font-size: 52px;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.activity-total-card p {
+  margin: 10px 0 0;
+  color: #aaa;
+  font-size: 14px;
+}
+
+@media (max-width: 700px) {
+  .activity-total-card {
+    max-width: 100%;
+    padding: 24px 18px;
+  }
+
+  .activity-total-card strong {
+    font-size: 44px;
+  }
+}
+
