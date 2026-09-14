@@ -69,14 +69,14 @@ function playAudioFile(
 function playChaChing() {
   playAudioFile(
     "/sounds/cha-ching.mp3",
-    0.7
+    0.35
   );
 }
 
 function playSwoosh() {
   playAudioFile(
     "/sounds/swoosh.mp3",
-    0.7
+    0.35
   );
 }
 
@@ -145,8 +145,21 @@ export default function SoundManager({
     );
 
     if (!hasInitializedRef.current) {
-      previousSignalIdsRef.current =
-        currentSignalIds;
+      const savedSignalIds = JSON.parse(
+        sessionStorage.getItem("bk-seen-signal-ids") || "[]"
+      ) as string[];
+
+      previousSignalIdsRef.current = new Set([
+        ...savedSignalIds,
+        ...currentSignalIds,
+      ]);
+
+      sessionStorage.setItem(
+        "bk-seen-signal-ids",
+        JSON.stringify([
+          ...previousSignalIdsRef.current,
+        ])
+      );
 
       hasInitializedRef.current = true;
 
@@ -179,6 +192,11 @@ export default function SoundManager({
 
     previousSignalIdsRef.current =
       currentSignalIds;
+
+    sessionStorage.setItem(
+      "bk-seen-signal-ids",
+      JSON.stringify([...currentSignalIds])
+    );
   }, [signals, activeFilter]);
 
   return null;

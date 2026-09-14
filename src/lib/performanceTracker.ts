@@ -1,4 +1,4 @@
-import { getCandles } from "@/lib/oanda";
+import { oanda } from "@/lib/oanda/client";
 import {
   getPendingPerformanceSignals,
   markPerformanceOutcome,
@@ -19,8 +19,14 @@ export async function updatePerformanceOutcomes() {
     try {
       // Performance tracking only.
       // One OANDA request per instrument, not per alert.
-      const data = await getCandles(pair, "M1", 500);
-      const candles = data.candles ?? [];
+      const response = await oanda.get(`/instruments/${pair}/candles`, {
+        params: {
+          granularity: "M1",
+          count: 500,
+          price: "M",
+        },
+      });
+      const candles = response.data.candles ?? [];
 
       for (const signal of signals) {
         for (const candle of candles) {
