@@ -262,3 +262,11 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.55; }
 }
+
+.trading-days-note {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #facc15;
+  opacity: 0.9;
+}

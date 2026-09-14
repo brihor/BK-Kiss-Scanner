@@ -91,6 +91,10 @@ export default function PerformancePage() {
           ))}
         </div>
 
+        <p className="trading-days-note">
+          Trading days only • Sunday session included • Results are combined for the selected period
+        </p>
+
         <section className="performance-summary">
           <div
             className="performance-circle"

@@ -185,7 +185,7 @@ export default function SearchFilterBar({
 
           <button
             type="button"
-            onClick={() => window.open("https://www.youtube.com/", "_blank")}
+            onClick={() => window.open("https://youtu.be/Kwc0lhg_vNc", "_blank")}
             className="relative flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-800 px-6 py-3 font-semibold text-gray-300 transition duration-200 hover:border-zinc-500 hover:bg-zinc-700"
           >
             <span>▶</span>

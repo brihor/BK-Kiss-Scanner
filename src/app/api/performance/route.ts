@@ -11,7 +11,17 @@ export async function GET(request: NextRequest) {
   const filter = request.nextUrl.searchParams.get("filter") || "all";
 
   const since = new Date();
-  since.setDate(since.getDate() - days);
+  let tradingDays = 1;
+
+  while (tradingDays < days) {
+    since.setDate(since.getDate() - 1);
+
+    if (since.getDay() !== 6) {
+      tradingDays++;
+    }
+  }
+
+  since.setHours(0, 0, 0, 0);
 
   let assetFilter = {};
 

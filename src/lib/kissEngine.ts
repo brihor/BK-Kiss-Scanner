@@ -39,22 +39,22 @@ function getMinimumDistance(
 
   // Gold
   if (symbol.startsWith("XAU")) {
-    return Math.max(atr * 1.25, 2.50);
+    return Math.max(atr * 1.25, 5.00);
   }
 
   // Silver
   if (symbol.startsWith("XAG")) {
-    return Math.max(atr * 1.25, 0.20);
+    return Math.max(atr * 1.25, 0.30);
   }
 
   // NAS100
 if (symbol.startsWith("NAS100")) {
-  return Math.max(atr * 1.25, 20);
+  return Math.max(atr * 1.25, 50);
 }
 
 // US30
 if (symbol.startsWith("US30")) {
-  return Math.max(atr * 1.25, 20);
+  return Math.max(atr * 1.25, 100);
 }
 
 // SPX500
