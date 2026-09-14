@@ -146,7 +146,7 @@ export default function SoundManager({
 
     if (!hasInitializedRef.current) {
       const savedSignalIds = JSON.parse(
-        sessionStorage.getItem("bk-seen-signal-ids") || "[]"
+        localStorage.getItem("bk-seen-signal-ids") || "[]"
       ) as string[];
 
       previousSignalIdsRef.current = new Set([
@@ -154,7 +154,7 @@ export default function SoundManager({
         ...currentSignalIds,
       ]);
 
-      sessionStorage.setItem(
+      localStorage.setItem(
         "bk-seen-signal-ids",
         JSON.stringify([
           ...previousSignalIdsRef.current,
@@ -193,7 +193,7 @@ export default function SoundManager({
     previousSignalIdsRef.current =
       currentSignalIds;
 
-    sessionStorage.setItem(
+    localStorage.setItem(
       "bk-seen-signal-ids",
       JSON.stringify([...currentSignalIds])
     );
