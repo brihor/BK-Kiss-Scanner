@@ -111,7 +111,7 @@ export default function NotificationsPage() {
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div>
             <Link
-              href="/dashboard"
+              href={typeof window !== "undefined" && new URLSearchParams(window.location.search).get("app") === "1" ? "/dashboard?app=1" : "/dashboard"}
               className="inline-flex items-center text-lg font-extrabold text-yellow-400 animate-pulse drop-shadow-[0_0_6px_rgba(250,204,21,0.8)] hover:text-yellow-300"
             >
               ↩ Back to Scanner
