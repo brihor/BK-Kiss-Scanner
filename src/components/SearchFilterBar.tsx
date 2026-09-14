@@ -153,7 +153,7 @@ export default function SearchFilterBar({
 
           <button
             type="button"
-            onClick={() => (window.location.href = window.location.search.includes("app=1") ? "/notifications?app=1" : "/notifications")}
+            onClick={() => (window.location.href = (window.location.pathname === "/app-scanner" || window.location.search.includes("app=1")) ? "/notifications?app=1" : "/notifications")}
             className="relative flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-800 px-6 py-3 font-semibold text-gray-300 transition duration-200 hover:border-zinc-500 hover:bg-zinc-700"
           >
             <span>🔔</span>
@@ -162,7 +162,7 @@ export default function SearchFilterBar({
 
           <button
             type="button"
-            onClick={() => (window.location.href = window.location.search.includes("app=1") ? "/performance?app=1" : "/performance")}
+            onClick={() => (window.location.href = (window.location.pathname === "/app-scanner" || window.location.search.includes("app=1")) ? "/performance?app=1" : "/performance")}
             className="relative flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-800 px-6 py-3 font-semibold text-gray-300 transition duration-200 hover:border-zinc-500 hover:bg-zinc-700"
           >
             <svg

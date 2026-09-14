@@ -39,7 +39,7 @@ export default function PerformancePage() {
     <main className="performance-page">
       <div className="performance-container">
         <div className="performance-top">
-          <Link href={typeof window !== "undefined" && new URLSearchParams(window.location.search).get("app") === "1" ? "/dashboard?app=1" : "/dashboard"} className="back-link back-link-highlight">
+          <Link href={typeof window !== "undefined" && new URLSearchParams(window.location.search).get("app") === "1" ? "/app-scanner" : "/dashboard"} className="back-link back-link-highlight">
             ↩ Back to Scanner
           </Link>
 
