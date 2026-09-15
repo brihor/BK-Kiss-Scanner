@@ -102,16 +102,9 @@ export default function SearchFilterBar({
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
       <div className="flex flex-col items-center justify-between gap-4 lg:flex-row">
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(event) => onSearchChange(event.target.value)}
-          placeholder="🔍 Search Pair..."
-          aria-label="Search scanner pairs"
-          className="w-full rounded-lg border border-zinc-700 bg-zinc-800 px-4 py-3 text-white placeholder-gray-500 focus:border-red-500 focus:outline-none lg:w-80"
-        />
 
-        <div className="flex flex-wrap gap-3">
+
+        <div className="scanner-filter-buttons flex flex-wrap gap-3">
           {filters.map((filter) => {
             const isActive = activeFilter === filter;
 

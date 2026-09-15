@@ -6,6 +6,7 @@ import "./performance.css";
 
 type PerformanceData = {
   totalAlerts: number;
+  selectedDayAlerts: number;
   tp: number;
   sl: number;
   unresolved: number;
@@ -78,26 +79,30 @@ export default function PerformancePage() {
         </p>
 
         <div className="day-filter">
-          {[1, 2, 3, 4, 5].map((day) => (
+          {[1, 2, 3, 4, 5, 6].map((day) => (
             <button
               key={day}
               className={days === day ? "active" : ""}
               onClick={() => setDays(day)}
             >
-              {day} Day{day > 1 ? "s" : ""}
+              Day {day}
             </button>
           ))}
         </div>
 
         <p className="trading-days-note">
-          Trading days only • Sunday session included • Alerts are combined for the selected period
+          Trading Day Periods • Based on New York Time (ET)
         </p>
 
         <section className="performance-summary activity-summary">
           <div className="activity-total-card">
             <span className="activity-label">TOTAL ALERTS</span>
             <strong>{data?.totalAlerts ?? 0}</strong>
-            <p>KiSS Scanner alignments detected</p>
+            <p>Collective alerts throughout the week</p>
+            <div className="selected-day-alerts">
+              <span>DAY {days} ACTIVITY</span>
+              <strong>{data?.selectedDayAlerts ?? 0} ALERTS</strong>
+            </div>
           </div>
         </section>
 
@@ -125,21 +130,22 @@ export default function PerformancePage() {
         <section className="daily-section">
           <h2>Alerts by Day</h2>
           <div className="daily-grid">
-            {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((day) => {
+            {[1, 2, 3, 4, 5, 6].map((day) => {
+              const label = `Day ${day}`;
               const alerts =
-                data?.dailyAlerts?.find((item) => item.day === day)?.alerts ?? 0;
+                data?.dailyAlerts?.find((item) => item.day === label)?.alerts ?? 0;
 
               return (
                 <div className="daily-card" key={day}>
-                  <strong>{day}</strong>
-                  <span>
-                    {day === "Saturday"
-                      ? "Market Closed"
-                      : `${alerts} alert${alerts === 1 ? "" : "s"}`}
-                  </span>
+                  <strong>{label}</strong>
+                  <span>{alerts} alert{alerts === 1 ? "" : "s"}</span>
                 </div>
               );
             })}
+            <div className="daily-card">
+              <strong>Saturday</strong>
+              <span>Market Closed • Weekly Reset</span>
+            </div>
           </div>
         </section>
 

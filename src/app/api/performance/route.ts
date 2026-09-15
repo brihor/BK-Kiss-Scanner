@@ -2,26 +2,41 @@ import { NextRequest, NextResponse } from "next/server";
 import { AssetType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
+function getETParts(date: Date) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    weekday: "long",
+    hour: "numeric",
+    hourCycle: "h23",
+  }).formatToParts(date);
+
+  return {
+    weekday: parts.find((p) => p.type === "weekday")?.value ?? "",
+    hour: Number(parts.find((p) => p.type === "hour")?.value ?? 0),
+  };
+}
+
+function getTradingDayNumber(date: Date): number | null {
+  const { weekday, hour } = getETParts(date);
+
+  if (weekday === "Sunday") return 1;
+
+  if (weekday === "Monday") return hour < 12 ? 1 : 2;
+  if (weekday === "Tuesday") return hour < 12 ? 2 : 3;
+  if (weekday === "Wednesday") return hour < 12 ? 3 : 4;
+  if (weekday === "Thursday") return hour < 12 ? 4 : 5;
+  if (weekday === "Friday") return hour < 12 ? 5 : 6;
+
+  return null;
+}
+
 export async function GET(request: NextRequest) {
-  const days = Math.min(
+  const selectedDay = Math.min(
     Math.max(Number(request.nextUrl.searchParams.get("days")) || 1, 1),
-    5
+    6
   );
 
   const filter = request.nextUrl.searchParams.get("filter") || "all";
-
-  const since = new Date();
-  let tradingDays = 1;
-
-  while (tradingDays < days) {
-    since.setDate(since.getDate() - 1);
-
-    if (since.getDay() !== 6) {
-      tradingDays++;
-    }
-  }
-
-  since.setHours(0, 0, 0, 0);
 
   let assetFilter = {};
 
@@ -35,16 +50,37 @@ export async function GET(request: NextRequest) {
     assetFilter = { pair: filter };
   }
 
-  const signals = await prisma.signalPerformance.findMany({
+  const nowET = getETParts(new Date());
+
+  // Saturday is the weekly reset/closed period.
+  if (nowET.weekday === "Saturday") {
+    return NextResponse.json({
+      days: selectedDay,
+      totalAlerts: 0,
+      selectedDayAlerts: 0,
+      tp: 0,
+      sl: 0,
+      completed: 0,
+      winRate: 0,
+      dailyAlerts: [],
+    });
+  }
+
+  // Performance history is cleared every Saturday by the existing cron.
+  // Therefore the remaining records belong to the current scanner week.
+  const weeklySignals = await prisma.signalPerformance.findMany({
     where: {
-      signalTime: { gte: since },
       ...assetFilter,
     },
     orderBy: { signalTime: "asc" },
   });
 
-  const tp = signals.filter((s) => s.outcome === "TP").length;
-  const sl = signals.filter((s) => s.outcome === "SL").length;
+  const selectedSignals = weeklySignals.filter(
+    (signal) => getTradingDayNumber(signal.signalTime) === selectedDay
+  );
+
+  const tp = selectedSignals.filter((s) => s.outcome === "TP").length;
+  const sl = selectedSignals.filter((s) => s.outcome === "SL").length;
   const completed = tp + sl;
 
   const winRate =
@@ -52,18 +88,19 @@ export async function GET(request: NextRequest) {
 
   const dailyMap = new Map<string, number>();
 
-  for (const signal of signals) {
-    const day = new Intl.DateTimeFormat("en-US", {
-      timeZone: "America/New_York",
-      weekday: "long",
-    }).format(signal.signalTime);
+  for (const signal of weeklySignals) {
+    const dayNumber = getTradingDayNumber(signal.signalTime);
 
-    dailyMap.set(day, (dailyMap.get(day) || 0) + 1);
+    if (dayNumber !== null) {
+      const key = `Day ${dayNumber}`;
+      dailyMap.set(key, (dailyMap.get(key) || 0) + 1);
+    }
   }
 
   return NextResponse.json({
-    days,
-    totalAlerts: signals.length,
+    days: selectedDay,
+    totalAlerts: weeklySignals.length,
+    selectedDayAlerts: selectedSignals.length,
     tp,
     sl,
     completed,

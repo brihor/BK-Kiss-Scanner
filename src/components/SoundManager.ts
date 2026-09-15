@@ -135,9 +135,9 @@ export default function SoundManager({
     const soundEnabled =
       localStorage.getItem("bk-sound-enabled") !== "false";
 
-    if (!soundEnabled) {
-      return;
- }
+    const scannerIsVisible =
+      document.visibilityState === "visible";
+
     const currentSignalIds = new Set(
       signals.map((signal) =>
         String(signal.id)
@@ -145,6 +145,12 @@ export default function SoundManager({
     );
 
     if (!hasInitializedRef.current) {
+      /*
+       * Every fresh scanner mount starts silently.
+       * Current alerts become the baseline, whether this mount came from
+       * refresh, reopening the scanner, or Back to Scanner navigation.
+       * Only alerts arriving after this baseline may play a sound.
+       */
       const savedSignalIds = JSON.parse(
         localStorage.getItem("bk-seen-signal-ids") || "[]"
       ) as string[];
@@ -173,7 +179,11 @@ export default function SoundManager({
         )
     );
 
-    if (audioUnlockedRef.current) {
+    if (
+      soundEnabled &&
+      scannerIsVisible &&
+      audioUnlockedRef.current
+    ) {
       newSignals.forEach((signal) => {
         const category =
           getSignalCategory(signal.pair);
@@ -190,12 +200,13 @@ export default function SoundManager({
       });
     }
 
-    previousSignalIdsRef.current =
-      currentSignalIds;
+    currentSignalIds.forEach((id) => {
+      previousSignalIdsRef.current.add(id);
+    });
 
     localStorage.setItem(
       "bk-seen-signal-ids",
-      JSON.stringify([...currentSignalIds])
+      JSON.stringify([...previousSignalIdsRef.current])
     );
   }, [signals, activeFilter]);
 

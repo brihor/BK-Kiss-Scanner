@@ -325,3 +325,43 @@
   }
 }
 
+
+
+/* Selected trading day activity */
+.selected-day-alerts {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.selected-day-alerts span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #999;
+}
+
+.selected-day-alerts strong {
+  font-size: 14px;
+  color: #ffd400;
+}
+
+/* Make selected Day activity easier to see */
+.selected-day-alerts {
+  gap: 12px;
+}
+
+.selected-day-alerts span {
+  font-size: 12px;
+}
+
+.selected-day-alerts strong {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  color: #ffd400;
+}

@@ -25,7 +25,11 @@ export default function DashboardPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
 
-    if (params.get("app") === "1") {
+    const isAppMode =
+      window.location.pathname === "/app-scanner" ||
+      params.get("app") === "1";
+
+    if (isAppMode) {
       document.documentElement.classList.add("bk-app-mode");
       requestAnimationFrame(() => {
         window.dispatchEvent(new Event("resize"));

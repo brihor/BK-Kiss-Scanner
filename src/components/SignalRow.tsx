@@ -104,9 +104,9 @@ export default function SignalRow({ signal, now }: Props) {
         </div>
       </td>
 
-      <td className="p-4">
+      <td className="p-4 signal-cell">
         <span
-          className={`inline-flex min-w-[82px] items-center justify-center gap-2 rounded-full border px-3 py-1.5 text-sm font-bold text-white ${
+          className={`signal-pill inline-flex min-w-[82px] items-center justify-center gap-2 rounded-full border px-3 py-1.5 text-sm font-bold text-white ${
             isBuy
               ? "border-green-400/50 bg-green-500/20 shadow-[0_0_12px_rgba(34,197,94,0.25)]"
               : "border-red-400/50 bg-red-500/20 shadow-[0_0_12px_rgba(239,68,68,0.25)]"

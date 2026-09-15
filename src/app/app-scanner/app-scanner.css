@@ -396,3 +396,50 @@ body {
     font-size: 14px !important;
   }
 }
+
+/* Native portrait: center and slightly reduce BUY/SELL signal pill */
+@media (orientation: portrait) {
+  .bk-app-mode .app-scanner-page .signal-cell {
+    text-align: center !important;
+  }
+
+  .bk-app-mode .app-scanner-page .signal-pill {
+    min-width: 72px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    font-size: 12px !important;
+    justify-content: center !important;
+  }
+}
+
+
+/* Native app portrait filter layout: 3 / 2 / 2 */
+@media (orientation: portrait) {
+  .app-scanner-page .scanner-filter-buttons {
+    display: grid !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    width: 100% !important;
+    gap: 5px !important;
+  }
+
+  .app-scanner-page .scanner-filter-buttons > button {
+    width: 100% !important;
+    min-width: 0 !important;
+    justify-content: center !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+  }
+
+  .app-scanner-page .scanner-filter-buttons > button:nth-child(1),
+  .app-scanner-page .scanner-filter-buttons > button:nth-child(2),
+  .app-scanner-page .scanner-filter-buttons > button:nth-child(3) {
+    grid-column: span 2;
+  }
+
+  .app-scanner-page .scanner-filter-buttons > button:nth-child(4),
+  .app-scanner-page .scanner-filter-buttons > button:nth-child(5),
+  .app-scanner-page .scanner-filter-buttons > button:nth-child(6),
+  .app-scanner-page .scanner-filter-buttons > button:nth-child(7) {
+    grid-column: span 3;
+  }
+}
