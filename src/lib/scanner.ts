@@ -1,6 +1,7 @@
 import { instruments } from "@/lib/config/instruments";
 import { getCandles } from "@/lib/oanda/candles";
 import { evaluateSignal } from "@/lib/kissEngine";
+import type { Candle } from "@/lib/indicators";
 
 export interface ScannerSignal {
   pair: string;
@@ -27,8 +28,12 @@ export async function scanMarket(): Promise<ScannerSignal[]> {
       try {
         const candles = await getCandles(pair);
 
+        const completedCandles = candles.filter(
+          (candle: Candle) => candle.complete === true
+        );
+
         const result = evaluateSignal(
-          candles,
+          completedCandles,
           pair
         );
 

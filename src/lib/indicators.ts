@@ -1,4 +1,5 @@
 export interface Candle {
+  complete?: boolean;
   mid: {
     o: string;
     h: string;
@@ -107,12 +108,12 @@ export function rsi(
 }
 
 /* =======================================================
-   Bollinger Bands (14, 2)
+   Bollinger Bands (20, 2)
 ======================================================= */
 
 export function bollingerBands(
   candles: Candle[],
-  length = 14,
+  length = 20,
   deviation = 2
 ) {
   const data = closes(candles);
