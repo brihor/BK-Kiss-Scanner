@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+
 import type { FilterType } from "@/app/dashboard/page";
 import type { Signal } from "@/types/signal";
 
 import SignalRow from "./SignalRow";
 import NotificationCenter from "./NotificationCenter";
 import SoundManager from "./SoundManager";
+import KissChartModal from "./KissChartModal";
 
 type Props = {
   activeFilter: FilterType;
@@ -106,6 +108,9 @@ export default function ScannerTable({
 
   const [disabledInstruments, setDisabledInstruments] =
     useState<string[]>([]);
+
+  const [selectedSignal, setSelectedSignal] =
+    useState<Signal | null>(null);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -303,6 +308,7 @@ export default function ScannerTable({
               <h2 className="text-xl font-bold uppercase tracking-wide text-white">
                 Live Scanner
               </h2>
+
               <p className="mt-1 text-sm font-extrabold uppercase tracking-wide text-yellow-400">
                 SCALPING / INTRADAY • 15 MIN TIMEFRAME • OVERBOUGHT / OVERSOLD
               </p>
@@ -371,6 +377,9 @@ export default function ScannerTable({
                       key={signal.id}
                       signal={signal}
                       now={now}
+                      onClick={() =>
+                        setSelectedSignal(signal)
+                      }
                     />
                   )
                 )
@@ -388,6 +397,15 @@ export default function ScannerTable({
           </table>
         </div>
       </section>
+
+      {selectedSignal && (
+        <KissChartModal
+          signal={selectedSignal}
+          onClose={() =>
+            setSelectedSignal(null)
+          }
+        />
+      )}
     </>
   );
 }

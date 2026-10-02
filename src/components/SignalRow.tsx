@@ -5,6 +5,7 @@ import { Signal } from "@/types/signal";
 type Props = {
   signal: Signal;
   now: number;
+  onClick: () => void;
 };
 
 function cleanPair(pair: string): string {
@@ -21,51 +22,24 @@ function formatPair(pair: string): string {
     return `${cleanedPair.slice(0, 3)}/${cleanedPair.slice(3, 6)}`;
   }
 
-  if (cleanedPair === "NAS100USD") {
-    return "NAS100";
-  }
-
-  if (cleanedPair === "US30USD") {
-    return "US30";
-  }
-
-  if (cleanedPair === "SPX500USD") {
-    return "SPX500";
-  }
+  if (cleanedPair === "NAS100USD") return "NAS100";
+  if (cleanedPair === "US30USD") return "US30";
+  if (cleanedPair === "SPX500USD") return "SPX500";
 
   return cleanedPair;
 }
 
-function formatPrice(
-  value: unknown,
-  pair?: string
-): string {
-  if (
-    value === null ||
-    value === undefined ||
-    value === ""
-  ) {
-    return "—";
-  }
+function formatPrice(value: unknown, pair?: string): string {
+  if (value === null || value === undefined || value === "") return "—";
 
   const numberValue = Number(value);
+  if (Number.isNaN(numberValue)) return String(value);
 
-  if (Number.isNaN(numberValue)) {
-    return String(value);
-  }
-
-  const cleanedPair = pair
-    ? cleanPair(pair)
-    : "";
-
+  const cleanedPair = pair ? cleanPair(pair) : "";
   let decimals = 5;
 
-  // JPY Forex Pairs
-  if (cleanedPair.includes("JPY")) {
-    decimals = 3;
-  }
+  if (cleanedPair.includes("JPY")) decimals = 3;
 
-  // Gold, Silver, Indices
   if (
     cleanedPair.startsWith("XAU") ||
     cleanedPair.startsWith("XAG") ||
@@ -76,16 +50,17 @@ function formatPrice(
     decimals = 2;
   }
 
-  return numberValue.toLocaleString(
-    "en-US",
-    {
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals,
-    }
-  );
+  return numberValue.toLocaleString("en-US", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
 }
 
-export default function SignalRow({ signal, now }: Props) {
+export default function SignalRow({
+  signal,
+  now,
+  onClick,
+}: Props) {
   const signalTimestamp = new Date(signal.signalTime).getTime();
 
   const ageMinutes = Number.isNaN(signalTimestamp)
@@ -94,8 +69,24 @@ export default function SignalRow({ signal, now }: Props) {
 
   const isBuy = signal.direction === "BUY";
 
+  function handleKeyDown(
+    event: React.KeyboardEvent<HTMLTableRowElement>
+  ) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      onClick();
+    }
+  }
+
   return (
-    <tr className="border-t border-zinc-800 transition-colors hover:bg-zinc-800/40">
+    <tr
+      onClick={onClick}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      role="button"
+      aria-label={`Open ${formatPair(signal.pair)} ${signal.direction} chart`}
+      className="cursor-pointer border-t border-zinc-800 transition-colors hover:bg-zinc-800/60 focus:bg-zinc-800/60 focus:outline-none"
+    >
       <td className="p-4 text-center">
         <div className="flex items-center justify-center">
           <span className="font-semibold text-white">
@@ -133,10 +124,12 @@ export default function SignalRow({ signal, now }: Props) {
         <span className="inline-flex items-center gap-2 text-yellow-400">
           <svg
             viewBox="0 0 24 24"
-            className="h-4 w-4"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-5 w-5"
             aria-hidden="true"
           >
             <circle cx="12" cy="12" r="9" />

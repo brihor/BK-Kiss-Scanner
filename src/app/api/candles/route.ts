@@ -1,15 +1,24 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getCandles } from "@/lib/oanda/candles";
+import { instruments } from "@/lib/config/instruments";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const candles = await getCandles("EUR_USD", 100);
+    const instrument = request.nextUrl.searchParams.get("instrument");
+
+    if (!instrument || !instruments.includes(instrument)) {
+      return NextResponse.json(
+        { success: false, error: "Invalid instrument" },
+        { status: 400 }
+      );
+    }
+
+    const candles = await getCandles(instrument, 250, "M15");
 
     return NextResponse.json({
       success: true,
-      count: candles.length,
-      first: candles[0],
-      last: candles[candles.length - 1],
+      instrument,
+      candles,
     });
   } catch (error) {
     return NextResponse.json(
