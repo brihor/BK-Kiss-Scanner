@@ -290,7 +290,7 @@
 
   .kiss-chart-body {
     height: calc(100% - 104px);
-    padding-right: 24px;
+    padding-right: 40px;
   }
 
   .kiss-pane-name {
