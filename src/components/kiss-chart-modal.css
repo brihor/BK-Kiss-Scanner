@@ -24,6 +24,7 @@
 }
 
 .kiss-chart-header {
+  position: relative;
   height: 84px;
   display: flex;
   align-items: center;
@@ -35,6 +36,27 @@
     #151515 0%,
     #0b0b0b 100%
   );
+}
+
+.kiss-chart-tradingview {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 800;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.kiss-chart-tradingview-mark {
+  font-size: 25px;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .kiss-chart-title {
@@ -99,6 +121,8 @@
   height: calc(100% - 118px);
   min-height: 0;
   overflow: hidden;
+  box-sizing: border-box;
+  padding-right: 6px;
 }
 
 .kiss-chart-container {
@@ -154,6 +178,7 @@
   Stoch ≈ 17.3%
   MACD ≈ 17.3%
 */
+
 .kiss-pane-name-bb {
   top: 2%;
 }
@@ -236,6 +261,15 @@
     padding: 10px 14px;
   }
 
+  .kiss-chart-tradingview {
+    gap: 5px;
+    font-size: 14px;
+  }
+
+  .kiss-chart-tradingview-mark {
+    font-size: 20px;
+  }
+
   .kiss-chart-title {
     font-size: 20px;
   }
@@ -256,6 +290,7 @@
 
   .kiss-chart-body {
     height: calc(100% - 104px);
+    padding-right: 10px;
   }
 
   .kiss-pane-name {

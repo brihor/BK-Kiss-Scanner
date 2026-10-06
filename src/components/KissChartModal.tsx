@@ -46,7 +46,30 @@ function cleanInstrument(pair: string) {
 function displayPair(pair: string) {
   return cleanInstrument(pair).replace("_", "/");
 }
+function getPriceFormat(pair: string) {
+  const instrument = cleanInstrument(pair);
+  let precision = 5;
 
+  if (instrument.includes("JPY")) {
+    precision = 3;
+  }
+
+  if (
+    instrument.startsWith("XAU") ||
+    instrument.startsWith("XAG") ||
+    instrument.startsWith("NAS100") ||
+    instrument.startsWith("US30") ||
+    instrument.startsWith("SPX500")
+  ) {
+    precision = 2;
+  }
+
+  return {
+    type: "price" as const,
+    precision,
+    minMove: 1 / Math.pow(10, precision),
+  };
+}
 export default function KissChartModal({
   signal,
   onClose,
@@ -129,6 +152,7 @@ export default function KissChartModal({
 
           rightPriceScale: {
             borderColor: "#27272a",
+            minimumWidth: 82,
             scaleMargins: {
               top: 0.03,
               bottom: 0.03,
@@ -156,6 +180,7 @@ export default function KissChartModal({
             borderVisible: false,
             wickUpColor: "#22c55e",
             wickDownColor: "#ef4444",
+            priceFormat: getPriceFormat(signal.pair),
           },
           0
         );
@@ -695,7 +720,9 @@ export default function KissChartModal({
               </span>
             </div>
           </div>
-
+<div className="kiss-chart-tradingview">
+  <span>TradingView</span>
+</div>
           <button
             type="button"
             className="kiss-chart-close"
