@@ -454,3 +454,47 @@ body {
     justify-content: center !important;
   }
 }
+
+/* PHONE APP LANDSCAPE NAVIGATION — 5 / 3 CENTERED */
+@media (orientation: landscape) and (max-height: 500px) {
+  .app-scanner-page .scanner-filter-buttons {
+    display: grid !important;
+    grid-template-columns: repeat(30, minmax(0, 1fr)) !important;
+    gap: 8px !important;
+    width: 100% !important;
+    align-items: stretch !important;
+  }
+
+  /* Top row: 5 equal buttons */
+  .app-scanner-page .scanner-filter-buttons > :nth-child(1),
+  .app-scanner-page .scanner-filter-buttons > :nth-child(2),
+  .app-scanner-page .scanner-filter-buttons > :nth-child(3),
+  .app-scanner-page .scanner-filter-buttons > :nth-child(4),
+  .app-scanner-page .scanner-filter-buttons > :nth-child(5) {
+    grid-column: span 6 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    justify-content: center !important;
+  }
+
+  /* Bottom row: 3 equal buttons, centered */
+  .app-scanner-page .scanner-filter-buttons > :nth-child(6) {
+    grid-column: 4 / span 8 !important;
+  }
+
+  .app-scanner-page .scanner-filter-buttons > :nth-child(7) {
+    grid-column: 12 / span 8 !important;
+  }
+
+  .app-scanner-page .scanner-filter-buttons > :nth-child(8) {
+    grid-column: 20 / span 8 !important;
+  }
+
+  .app-scanner-page .scanner-filter-buttons > :nth-child(6),
+  .app-scanner-page .scanner-filter-buttons > :nth-child(7),
+  .app-scanner-page .scanner-filter-buttons > :nth-child(8) {
+    width: 100% !important;
+    min-width: 0 !important;
+    justify-content: center !important;
+  }
+}
