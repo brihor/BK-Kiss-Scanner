@@ -35,13 +35,13 @@ enum AssetType {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
+  id           String  @id @default(cuid())
+  email        String  @unique
   passwordHash String?
   firstName    String?
   lastName     String?
-  role         String   @default("USER")
-  isActive     Boolean  @default(true)
+  role         String  @default("USER")
+  isActive     Boolean @default(true)
 
   subscriptionStatus String @default("INACTIVE")
 
@@ -76,8 +76,9 @@ model PushToken {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
 model SignalPerformance {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   pair        String
   assetType   AssetType
   direction   String
@@ -87,9 +88,37 @@ model SignalPerformance {
   signalTime  DateTime
   outcome     String?
   outcomeTime DateTime?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
 
   @@index([signalTime])
   @@index([pair])
   @@index([outcome])
+}
+
+model Announcement {
+  id         String   @id @default(cuid())
+  title      String
+  message    String
+  buttonText String?
+  buttonUrl  String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  dismissals AnnouncementDismissal[]
+
+  @@index([isActive])
+  @@index([createdAt])
+}
+
+model AnnouncementDismissal {
+  id             String   @id @default(cuid())
+  announcementId String
+  userId         String
+  dismissedAt    DateTime @default(now())
+
+  announcement Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+
+  @@unique([announcementId, userId])
+  @@index([userId])
 }

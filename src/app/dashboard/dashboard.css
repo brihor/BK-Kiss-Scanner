@@ -383,3 +383,15 @@ html.bk-app-mode .dashboard-shell {
   margin: 0 auto !important;
   overflow-x: hidden !important;
 }
+
+/* ADMIN BUTTON — inactive navigation styling */
+.admin-nav-button::before,
+.admin-nav-button::after {
+  display: none !important;
+  content: none !important;
+  box-shadow: none !important;
+}
+
+.admin-nav-button {
+  box-shadow: none !important;
+}

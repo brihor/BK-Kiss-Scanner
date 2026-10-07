@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { FilterType } from "@/app/dashboard/page";
 
 type Props = {
@@ -7,6 +8,8 @@ type Props = {
   onFilterChange: (filter: FilterType) => void;
   searchTerm: string;
   onSearchChange: (value: string) => void;
+  isAdmin: boolean;
+  accountLoaded: boolean;
 };
 
 export default function SearchFilterBar({
@@ -14,13 +17,22 @@ export default function SearchFilterBar({
   onFilterChange,
   searchTerm,
   onSearchChange,
+isAdmin,
+  accountLoaded,
 }: Props) {
-  const filters: FilterType[] = [
+const filters: FilterType[] = [
     "ALL",
     "FOREX",
     "METALS",
     "INDICES",
   ];
+const goToPage = (path: string) => {
+    const isApp =
+      window.location.pathname === "/app-scanner" ||
+      window.location.search.includes("app=1");
+
+    window.location.href = isApp ? `${path}?app=1` : path;
+  };
 
   const renderIcon = (filter: FilterType) => {
     if (filter === "ALL") {
@@ -99,11 +111,13 @@ export default function SearchFilterBar({
     );
   };
 
+  const standardButtonClass =
+    "relative flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-800 px-6 py-3 font-semibold text-gray-300 transition duration-200 hover:border-zinc-500 hover:bg-zinc-700";
+
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
       <div className="flex flex-col items-center justify-between gap-4 lg:flex-row">
-
-
+        {accountLoaded && (
         <div className="scanner-filter-buttons flex flex-wrap gap-3">
           {filters.map((filter) => {
             const isActive = activeFilter === filter;
@@ -120,11 +134,7 @@ export default function SearchFilterBar({
                     : "border-zinc-700 bg-zinc-800 text-gray-300 hover:border-zinc-500 hover:bg-zinc-700"
                 }`}
               >
-                <span
-                  className={
-                    isActive ? "text-red-400" : "text-gray-400"
-                  }
-                >
+                <span className={isActive ? "text-red-400" : "text-gray-400"}>
                   {renderIcon(filter)}
                 </span>
 
@@ -141,13 +151,10 @@ export default function SearchFilterBar({
             );
           })}
 
-
-
-
           <button
             type="button"
-            onClick={() => (window.location.href = (window.location.pathname === "/app-scanner" || window.location.search.includes("app=1")) ? "/notifications?app=1" : "/notifications")}
-            className="relative flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-800 px-6 py-3 font-semibold text-gray-300 transition duration-200 hover:border-zinc-500 hover:bg-zinc-700"
+            onClick={() => goToPage("/notifications")}
+            className={standardButtonClass}
           >
             <span>🔔</span>
             <span>NOTIFICATIONS</span>
@@ -155,8 +162,8 @@ export default function SearchFilterBar({
 
           <button
             type="button"
-            onClick={() => (window.location.href = (window.location.pathname === "/app-scanner" || window.location.search.includes("app=1")) ? "/performance?app=1" : "/performance")}
-            className="relative flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-800 px-6 py-3 font-semibold text-gray-300 transition duration-200 hover:border-zinc-500 hover:bg-zinc-700"
+            onClick={() => goToPage("/performance")}
+            className={standardButtonClass}
           >
             <svg
               viewBox="0 0 24 24"
@@ -178,16 +185,27 @@ export default function SearchFilterBar({
 
           <button
             type="button"
-            onClick={() => window.open("https://youtu.be/Kwc0lhg_vNc", "_blank")}
-            className="relative flex items-center gap-2 rounded-xl border border-zinc-700 bg-zinc-800 px-6 py-3 font-semibold text-gray-300 transition duration-200 hover:border-zinc-500 hover:bg-zinc-700"
+            onClick={() =>
+              window.open("https://youtu.be/Kwc0lhg_vNc", "_blank")
+            }
+            className={standardButtonClass}
           >
             <span>▶</span>
             <span>HOW TO USE SCANNER</span>
           </button>
-          
 
-          
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => goToPage("/admin")}
+              className="admin-nav-button relative flex items-center gap-2 overflow-hidden rounded-xl border border-zinc-700 bg-zinc-800 px-6 py-3 font-semibold text-zinc-200 transition duration-200 hover:border-red-500/70 hover:bg-zinc-700 hover:text-white"
+            >
+              <span className="relative text-red-400">⚙</span>
+              <span className="relative">ADMIN</span>
+            </button>
+          )}
         </div>
+        )}
       </div>
     </div>
   );

@@ -8,6 +8,7 @@ import SessionBar from "@/components/SessionBar";
 import StatsBar from "@/components/StatsBar";
 import SearchFilterBar from "@/components/SearchFilterBar";
 import ScannerTable from "@/components/ScannerTable";
+import AnnouncementPopup from "@/components/AnnouncementPopup";
 
 export type FilterType =
   | "ALL"
@@ -21,6 +22,8 @@ export default function DashboardPage() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [accountLoaded, setAccountLoaded] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -76,7 +79,11 @@ export default function DashboardPage() {
           data.user.subscriptionStatus !== "ACTIVE"
         ) {
           handleInactiveSubscription();
+          return;
         }
+
+        setIsAdmin(data.user.role === "ADMIN");
+        setAccountLoaded(true);
       } catch (error) {
         console.error(
           "Unable to verify subscription:",
@@ -133,11 +140,15 @@ export default function DashboardPage() {
 
         <StatsBar />
 
+        <AnnouncementPopup />
+
         <SearchFilterBar
           activeFilter={activeFilter}
           onFilterChange={setActiveFilter}
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
+          isAdmin={isAdmin}
+          accountLoaded={accountLoaded}
         />
 
         <ScannerTable
