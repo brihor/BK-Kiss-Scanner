@@ -587,3 +587,50 @@ body {
     text-align: center !important;
   }
 }
+
+/* MEMBER PHONE LANDSCAPE — 7 BUTTONS ONLY
+   Admin layout remains untouched. */
+@media (orientation: landscape) and (max-height: 500px) {
+
+  /* Only applies when there is NO 8th/Admin button */
+  .app-scanner-page .scanner-filter-buttons:not(:has(> :nth-child(8))) {
+    grid-template-columns: repeat(28, minmax(0, 1fr)) !important;
+    grid-auto-rows: 50px !important;
+  }
+
+  /* Member top row: 4 equal buttons */
+  .app-scanner-page .scanner-filter-buttons:not(:has(> :nth-child(8))) > :nth-child(1),
+  .app-scanner-page .scanner-filter-buttons:not(:has(> :nth-child(8))) > :nth-child(2),
+  .app-scanner-page .scanner-filter-buttons:not(:has(> :nth-child(8))) > :nth-child(3),
+  .app-scanner-page .scanner-filter-buttons:not(:has(> :nth-child(8))) > :nth-child(4) {
+    grid-column: span 7 !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+  }
+
+  /* Member bottom row: 3 equal buttons centered */
+  .app-scanner-page .scanner-filter-buttons:not(:has(> :nth-child(8))) > :nth-child(5) {
+    grid-column: 4 / span 7 !important;
+  }
+
+  .app-scanner-page .scanner-filter-buttons:not(:has(> :nth-child(8))) > :nth-child(6) {
+    grid-column: 11 / span 7 !important;
+  }
+
+  .app-scanner-page .scanner-filter-buttons:not(:has(> :nth-child(8))) > :nth-child(7) {
+    grid-column: 18 / span 7 !important;
+  }
+
+  .app-scanner-page .scanner-filter-buttons:not(:has(> :nth-child(8))) > :nth-child(5),
+  .app-scanner-page .scanner-filter-buttons:not(:has(> :nth-child(8))) > :nth-child(6),
+  .app-scanner-page .scanner-filter-buttons:not(:has(> :nth-child(8))) > :nth-child(7) {
+    height: 50px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
