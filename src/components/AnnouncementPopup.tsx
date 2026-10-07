@@ -168,9 +168,10 @@ export default function AnnouncementPopup() {
         </h2>
 
         <div className="bk-announcement-message-box">
-          <p className="bk-announcement-message">
-            {announcement.message}
-          </p>
+          <div
+            className="bk-announcement-message"
+            dangerouslySetInnerHTML={{ __html: announcement.message }}
+          />
         </div>
 
         {announcement.buttonText && announcement.buttonUrl && (

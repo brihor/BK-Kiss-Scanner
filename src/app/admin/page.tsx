@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import "@/components/announcement-popup.css";
 
 type Announcement = {
   id: string;
@@ -25,6 +26,35 @@ export default function AdminPage() {
   const [buttonUrl, setButtonUrl] = useState("");
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [status, setStatus] = useState("");
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const messageRef = useRef<HTMLDivElement | null>(null);
+
+  const syncMessage = () => {
+    setMessage(messageRef.current?.innerHTML ?? "");
+  };
+
+  const runFormat = (command: string, value?: string) => {
+    const editor = messageRef.current;
+    if (!editor) return;
+
+    editor.focus();
+    document.execCommand(command, false, value);
+    syncMessage();
+  };
+
+  const addLink = () => {
+    const url = window.prompt("Enter the full link (https://...)");
+    if (!url) return;
+
+    const cleanUrl = url.trim();
+
+    if (!/^https?:\/\//i.test(cleanUrl)) {
+      setStatus("Links must begin with http:// or https://");
+      return;
+    }
+
+    runFormat("createLink", cleanUrl);
+  };
 
   const loadAnnouncements = async () => {
     try {
@@ -54,7 +84,7 @@ export default function AdminPage() {
   const publishAnnouncement = async (event: FormEvent) => {
     event.preventDefault();
 
-    if (!title.trim() || !message.trim()) {
+    if (!title.trim() || !messageRef.current?.innerText.trim()) {
       setStatus("Headline and message are required.");
       return;
     }
@@ -85,6 +115,9 @@ export default function AdminPage() {
 
       setTitle("");
       setMessage("");
+      if (messageRef.current) {
+        messageRef.current.innerHTML = "";
+      }
       setButtonText("");
       setButtonUrl("");
       setStatus("Announcement published successfully.");
@@ -197,17 +230,80 @@ export default function AdminPage() {
               >
                 MESSAGE
               </label>
-              <textarea
+              <div className="mb-2 flex flex-wrap gap-2 rounded-xl border border-zinc-800 bg-black/40 p-2">
+                <button
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => runFormat("bold")}
+                  className="min-w-10 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 font-bold text-white transition hover:border-red-500"
+                  title="Bold"
+                >
+                  B
+                </button>
+
+                <button
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => runFormat("italic")}
+                  className="min-w-10 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 italic text-white transition hover:border-red-500"
+                  title="Italic"
+                >
+                  I
+                </button>
+
+                <button
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => runFormat("underline")}
+                  className="min-w-10 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 underline text-white transition hover:border-red-500"
+                  title="Underline"
+                >
+                  U
+                </button>
+
+                <button
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => runFormat("justifyCenter")}
+                  className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-white transition hover:border-red-500"
+                  title="Center"
+                >
+                  ≡ Center
+                </button>
+
+                <button
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => runFormat("insertUnorderedList")}
+                  className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-white transition hover:border-red-500"
+                  title="Bulleted list"
+                >
+                  • List
+                </button>
+
+                <button
+                  type="button"
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={addLink}
+                  className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-white transition hover:border-red-500"
+                  title="Insert link"
+                >
+                  🔗 Link
+                </button>
+              </div>
+
+              <div
+                ref={messageRef}
                 id="announcement-message"
-                value={message}
-                onChange={(event) => setMessage(event.target.value)}
-                rows={6}
-                maxLength={2000}
-                placeholder="Type your announcement here..."
-                className="w-full resize-y rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white outline-none transition placeholder:text-zinc-600 focus:border-red-500 focus:shadow-[0_0_15px_rgba(239,68,68,0.12)]"
+                contentEditable
+                suppressContentEditableWarning
+                onInput={syncMessage}
+                data-placeholder="Type your announcement here..."
+                className="min-h-[170px] w-full overflow-y-auto rounded-xl border border-zinc-700 bg-zinc-900 px-4 py-3 text-white outline-none transition empty:before:pointer-events-none empty:before:text-zinc-600 empty:before:content-[attr(data-placeholder)] focus:border-red-500 focus:shadow-[0_0_15px_rgba(239,68,68,0.12)]"
               />
+
               <div className="mt-1 text-right text-xs text-zinc-600">
-                {message.length}/2000
+                {messageRef.current?.innerText.length ?? 0}/2000
               </div>
             </div>
 
@@ -252,19 +348,30 @@ export default function AdminPage() {
               </p>
             )}
 
-            <button
-              type="submit"
-              disabled={publishing}
-              className="relative w-full overflow-hidden rounded-xl border border-red-500 bg-red-600 px-6 py-4 text-base font-bold tracking-wide text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <span
-                className="pointer-events-none absolute inset-x-[12%] bottom-[-3px] h-2 rounded-full bg-red-400 blur-md"
-                aria-hidden="true"
-              />
-              <span className="relative">
-                {publishing ? "PUBLISHING..." : "PUBLISH ANNOUNCEMENT →"}
-              </span>
-            </button>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() => setPreviewOpen(true)}
+                disabled={!title.trim() && !message.trim()}
+                className="relative overflow-hidden rounded-xl border border-zinc-600 bg-zinc-900 px-6 py-4 text-base font-bold tracking-wide text-white transition hover:border-red-500 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                👁 PREVIEW ANNOUNCEMENT
+              </button>
+
+              <button
+                type="submit"
+                disabled={publishing}
+                className="relative overflow-hidden rounded-xl border border-red-500 bg-red-600 px-6 py-4 text-base font-bold tracking-wide text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <span
+                  className="pointer-events-none absolute inset-x-[12%] bottom-[-3px] h-2 rounded-full bg-red-400 blur-md"
+                  aria-hidden="true"
+                />
+                <span className="relative">
+                  {publishing ? "PUBLISHING..." : "PUBLISH ANNOUNCEMENT →"}
+                </span>
+              </button>
+            </div>
           </form>
         </section>
 
@@ -304,6 +411,88 @@ export default function AdminPage() {
           )}
         </section>
       </div>
+
+      {previewOpen && (
+        <div
+          className="bk-announcement-backdrop bk-announcement-visible"
+          role="presentation"
+        >
+          <section
+            className="bk-announcement-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="bk-preview-announcement-title"
+          >
+            <div className="bk-announcement-top-glow" />
+            <div className="bk-announcement-side-glow bk-announcement-side-left" />
+            <div className="bk-announcement-side-glow bk-announcement-side-right" />
+
+            <div className="bk-announcement-mic-wrap" aria-hidden="true">
+              <img
+                src="/announcement-assets/announcement-mic.png"
+                alt=""
+                className="bk-announcement-mic"
+              />
+            </div>
+
+            <button
+              type="button"
+              className="bk-announcement-close"
+              onClick={() => setPreviewOpen(false)}
+              aria-label="Close announcement preview"
+            >
+              ×
+            </button>
+
+            <div className="bk-announcement-brand">
+              <div className="bk-announcement-icon-wrap">
+                <div className="bk-announcement-icon-pulse" />
+                <div className="bk-announcement-icon">📣</div>
+              </div>
+
+              <div>
+                <div className="bk-announcement-brand-name">
+                  BK KiSS Scanner
+                </div>
+                <div className="bk-announcement-label">
+                  ANNOUNCEMENT
+                </div>
+              </div>
+            </div>
+
+            <div className="bk-announcement-divider" />
+
+            <h2
+              id="bk-preview-announcement-title"
+              className="bk-announcement-title"
+            >
+              {title.trim() || "Announcement Headline"}
+            </h2>
+
+            <div className="bk-announcement-message-box">
+              <div className="bk-announcement-message whitespace-pre-wrap">
+                {message ? (
+                  <div dangerouslySetInnerHTML={{ __html: message }} />
+                ) : (
+                  "Your announcement message will appear here."
+                )}
+              </div>
+            </div>
+
+            {buttonText.trim() && buttonUrl.trim() && (
+              <a
+                href={buttonUrl.trim()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bk-announcement-link"
+              >
+                {buttonText.trim()} →
+              </a>
+            )}
+          </section>
+        </div>
+      )}
+
     </main>
   );
 }

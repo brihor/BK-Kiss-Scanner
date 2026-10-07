@@ -2,6 +2,107 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 
+function sanitizeAnnouncementHtml(input: string) {
+  let html = input;
+
+  // Remove dangerous elements and their contents.
+  html = html.replace(
+    /<(script|style|iframe|object|embed|svg|math)[^>]*>[\s\S]*?<\/\1\s*>/gi,
+    ""
+  );
+
+  // Remove standalone dangerous elements.
+  html = html.replace(
+    /<(script|style|iframe|object|embed|svg|math)[^>]*\/?>/gi,
+    ""
+  );
+
+  // Keep only the tags our editor needs.
+  html = html.replace(
+    /<(?!\/?(?:b|strong|i|em|u|div|p|br|ul|ol|li|a)(?:\s|>|\/))[^>]*>/gi,
+    ""
+  );
+
+  // Remove all event handlers.
+  html = html.replace(
+    /\s+on[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi,
+    ""
+  );
+
+  // Remove javascript/data/vbscript URLs.
+  html = html.replace(
+    /\s+(href|src)\s*=\s*(["'])\s*(?:javascript|data|vbscript):[\s\S]*?\2/gi,
+    ""
+  );
+
+  // Sanitize links separately.
+  html = html.replace(
+    /<a\b([^>]*)>/gi,
+    (_match, attributes: string) => {
+      const hrefMatch = attributes.match(
+        /\bhref\s*=\s*(["'])(.*?)\1/i
+      );
+
+      if (!hrefMatch) {
+        return "<span>";
+      }
+
+      const href = hrefMatch[2].trim();
+
+      try {
+        const url = new URL(href);
+
+        if (url.protocol !== "https:" && url.protocol !== "http:") {
+          return "<span>";
+        }
+
+        const escapedHref = href
+          .replace(/&/g, "&amp;")
+          .replace(/"/g, "&quot;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+
+        return `<a href="${escapedHref}" target="_blank" rel="noopener noreferrer">`;
+      } catch {
+        return "<span>";
+      }
+    }
+  );
+
+  html = html.replace(/<\/a>/gi, "</a>");
+
+  // Only preserve text-align:center from editor-generated style attributes.
+  html = html.replace(
+    /\s+style\s*=\s*(["'])(.*?)\1/gi,
+    (_match, _quote, styles: string) => {
+      return /text-align\s*:\s*center/i.test(styles)
+        ? ' style="text-align: center;"'
+        : "";
+    }
+  );
+
+  // Remove every attribute except:
+  // - href/target/rel on links
+  // - center alignment style on div/p
+  html = html.replace(
+    /<(b|strong|i|em|u|div|p|br|ul|ol|li)\b([^>]*)>/gi,
+    (_match, tag: string, attributes: string) => {
+      const lowerTag = tag.toLowerCase();
+
+      if (
+        (lowerTag === "div" || lowerTag === "p") &&
+        /style\s*=\s*["']text-align:\s*center;?["']/i.test(attributes)
+      ) {
+        return `<${lowerTag} style="text-align: center;">`;
+      }
+
+      return `<${lowerTag}>`;
+    }
+  );
+
+  return html.trim();
+}
+
 async function getAdminUser() {
   const session = await getSession();
   const userId =
@@ -67,8 +168,10 @@ export async function POST(request: Request) {
     const title =
       typeof body.title === "string" ? body.title.trim() : "";
 
-    const message =
+    const rawMessage =
       typeof body.message === "string" ? body.message.trim() : "";
+
+    const message = sanitizeAnnouncementHtml(rawMessage);
 
     const buttonText =
       typeof body.buttonText === "string" && body.buttonText.trim()
