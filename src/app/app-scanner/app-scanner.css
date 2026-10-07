@@ -443,3 +443,14 @@ body {
     grid-column: span 3;
   }
 }
+
+/* ADMIN NAV — PHONE PORTRAIT
+   Preserve the existing 3 / 2 / 2 layout and center Admin on its own row. */
+@media (orientation: portrait) {
+  .app-scanner-page .scanner-filter-buttons > :nth-child(8) {
+    grid-column: 2 / span 4 !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    justify-content: center !important;
+  }
+}
