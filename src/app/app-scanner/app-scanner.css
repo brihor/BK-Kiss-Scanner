@@ -516,3 +516,42 @@ body {
     white-space: nowrap !important;
   }
 }
+
+/* FINAL PHONE LANDSCAPE NAV — MATCH TOP ROW HEIGHT EXACTLY */
+@media (orientation: landscape) and (max-height: 500px) {
+
+  /* Bottom row stays centered */
+  .app-scanner-page .scanner-filter-buttons > :nth-child(6) {
+    grid-column: 4 / span 8 !important;
+  }
+
+  .app-scanner-page .scanner-filter-buttons > :nth-child(7) {
+    grid-column: 12 / span 8 !important;
+  }
+
+  .app-scanner-page .scanner-filter-buttons > :nth-child(8) {
+    grid-column: 20 / span 8 !important;
+  }
+
+  /* Make bottom three use the SAME vertical sizing as top five */
+  .app-scanner-page .scanner-filter-buttons > :nth-child(6),
+  .app-scanner-page .scanner-filter-buttons > :nth-child(7),
+  .app-scanner-page .scanner-filter-buttons > :nth-child(8) {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+
+    align-self: stretch !important;
+    justify-content: center !important;
+
+    white-space: nowrap !important;
+  }
+
+  /* Force both grid rows to the exact same height */
+  .app-scanner-page .scanner-filter-buttons {
+    grid-auto-rows: 76px !important;
+  }
+}
