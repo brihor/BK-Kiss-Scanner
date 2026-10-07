@@ -32,9 +32,9 @@ function getMinimumDistance(
 ) {
   const symbol = pair.toUpperCase();
 
-  // JPY Forex pairs - ATR based with 10 pip minimum
+  // JPY Pairs
   if (symbol.includes("JPY")) {
-    return Math.max(atr * 1.25, 0.10);
+    return Math.max(atr * 1.25, 0.20);
   }
 
   // Gold
@@ -62,8 +62,8 @@ if (symbol.startsWith("US_SPX500")) {
   return Math.max(atr * 1.25, 20);
 }
 
-  // Standard Forex - ATR based with 10 pip minimum
-  return Math.max(atr * 1.25, 0.0010);
+  // Standard Forex
+  return Math.max(atr * 1.25, 0.0020);
 }
 
 export function evaluateSignal(
