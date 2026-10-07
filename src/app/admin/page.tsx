@@ -59,7 +59,7 @@ export default function AdminPage() {
 
     if (selectedText) {
       const lines = selectedText
-        .split(/\\n+/)
+        .split(/\n+/)
         .map((line) => line.trim())
         .filter(Boolean);
 
@@ -149,10 +149,17 @@ export default function AdminPage() {
   const publishAnnouncement = async (event: FormEvent) => {
     event.preventDefault();
 
-    if (!title.trim() || !messageRef.current?.innerText.trim()) {
+    const editor = messageRef.current;
+    const currentMessage = editor?.innerHTML.trim() ?? "";
+    const currentText = editor?.innerText.trim() ?? "";
+
+    if (!title.trim() || !currentText) {
       setStatus("Headline and message are required.");
       return;
     }
+
+    // Keep state synchronized, but publish the editor's CURRENT HTML directly.
+    setMessage(currentMessage);
 
     setPublishing(true);
     setStatus("");
@@ -165,7 +172,7 @@ export default function AdminPage() {
         },
         body: JSON.stringify({
           title: title.trim(),
-          message: message.trim(),
+          message: currentMessage,
           buttonText: buttonText.trim() || null,
           buttonUrl: buttonUrl.trim() || null,
         }),
