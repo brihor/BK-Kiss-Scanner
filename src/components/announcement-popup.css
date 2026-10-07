@@ -775,3 +775,79 @@
     z-index: 20 !important;
   }
 }
+
+
+/* =========================================================
+   FINAL ANNOUNCEMENT OVERFLOW FIX
+   Keep CTA visible; long announcement text scrolls internally.
+   ========================================================= */
+
+.bk-announcement-modal {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+.bk-announcement-brand,
+.bk-announcement-divider,
+.bk-announcement-title,
+.bk-announcement-link {
+  flex-shrink: 0 !important;
+}
+
+.bk-announcement-message-box {
+  min-height: 0 !important;
+  max-height: min(410px, 45vh) !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+}
+
+.bk-announcement-message ul,
+.bk-announcement-message ol {
+  margin: 0.6rem 0 !important;
+  padding-left: 1.6rem !important;
+  text-align: left !important;
+}
+
+.bk-announcement-message ul {
+  list-style-type: disc !important;
+}
+
+.bk-announcement-message ol {
+  list-style-type: decimal !important;
+}
+
+.bk-announcement-message li {
+  display: list-item !important;
+  margin: 0.2rem 0 !important;
+}
+
+/* Desktop / tablet: preserve CTA inside popup */
+@media (min-width: 641px) {
+  .bk-announcement-message-box {
+    max-height: min(410px, 43vh) !important;
+  }
+}
+
+/* Phone portrait */
+@media (max-width: 640px) and (orientation: portrait) {
+  .bk-announcement-message-box {
+    max-height: 38vh !important;
+  }
+
+  .bk-announcement-link {
+    flex-shrink: 0 !important;
+  }
+}
+
+/* Phone landscape: retain the compact layout already approved */
+@media (orientation: landscape) and (max-height: 500px) {
+  .bk-announcement-message-box {
+    max-height: 105px !important;
+    overflow-y: auto !important;
+  }
+
+  .bk-announcement-link {
+    flex-shrink: 0 !important;
+  }
+}

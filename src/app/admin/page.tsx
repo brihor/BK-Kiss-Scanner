@@ -42,6 +42,71 @@ export default function AdminPage() {
     syncMessage();
   };
 
+  const addBulletList = () => {
+    const editor = messageRef.current;
+    if (!editor) return;
+
+    editor.focus();
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+
+    if (!editor.contains(range.commonAncestorContainer)) return;
+
+    const selectedText = selection.toString().trim();
+
+    if (selectedText) {
+      const lines = selectedText
+        .split(/\\n+/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+      if (lines.length === 0) return;
+
+      const ul = document.createElement("ul");
+      ul.style.listStyleType = "disc";
+      ul.style.paddingLeft = "1.5rem";
+      ul.style.margin = "0.5rem 0";
+
+      for (const line of lines) {
+        const li = document.createElement("li");
+        li.textContent = line;
+        ul.appendChild(li);
+      }
+
+      range.deleteContents();
+      range.insertNode(ul);
+
+      selection.removeAllRanges();
+      const newRange = document.createRange();
+      newRange.selectNodeContents(ul);
+      newRange.collapse(false);
+      selection.addRange(newRange);
+    } else {
+      const ul = document.createElement("ul");
+      ul.style.listStyleType = "disc";
+      ul.style.paddingLeft = "1.5rem";
+      ul.style.margin = "0.5rem 0";
+
+      const li = document.createElement("li");
+      li.appendChild(document.createElement("br"));
+      ul.appendChild(li);
+
+      range.insertNode(ul);
+
+      const newRange = document.createRange();
+      newRange.selectNodeContents(li);
+      newRange.collapse(true);
+
+      selection.removeAllRanges();
+      selection.addRange(newRange);
+    }
+
+    syncMessage();
+  };
+
   const addLink = () => {
     const url = window.prompt("Enter the full link (https://...)");
     if (!url) return;
@@ -274,7 +339,7 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => runFormat("insertUnorderedList")}
+                  onClick={addBulletList}
                   className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-white transition hover:border-red-500"
                   title="Bulleted list"
                 >
