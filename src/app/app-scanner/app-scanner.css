@@ -555,3 +555,35 @@ body {
     grid-auto-rows: 76px !important;
   }
 }
+
+/* FINAL LANDSCAPE NAV SIZE CORRECTION */
+@media (orientation: landscape) and (max-height: 500px) {
+
+  .app-scanner-page .scanner-filter-buttons {
+    grid-auto-rows: 50px !important;
+  }
+
+  .app-scanner-page .scanner-filter-buttons > :nth-child(1),
+  .app-scanner-page .scanner-filter-buttons > :nth-child(2),
+  .app-scanner-page .scanner-filter-buttons > :nth-child(3),
+  .app-scanner-page .scanner-filter-buttons > :nth-child(4),
+  .app-scanner-page .scanner-filter-buttons > :nth-child(5),
+  .app-scanner-page .scanner-filter-buttons > :nth-child(6),
+  .app-scanner-page .scanner-filter-buttons > :nth-child(7),
+  .app-scanner-page .scanner-filter-buttons > :nth-child(8) {
+    height: 50px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* Keep the longer label safely inside its button */
+  .app-scanner-page .scanner-filter-buttons > :nth-child(7) {
+    white-space: normal !important;
+    line-height: 1.05 !important;
+    text-align: center !important;
+  }
+}
