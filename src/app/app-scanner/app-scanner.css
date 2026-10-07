@@ -498,3 +498,21 @@ body {
     justify-content: center !important;
   }
 }
+
+/* PHONE APP LANDSCAPE — KEEP BOTTOM ROW SAME HEIGHT AS TOP */
+@media (orientation: landscape) and (max-height: 500px) {
+  .app-scanner-page .scanner-filter-buttons > :nth-child(6),
+  .app-scanner-page .scanner-filter-buttons > :nth-child(7),
+  .app-scanner-page .scanner-filter-buttons > :nth-child(8) {
+    height: 76px !important;
+    min-height: 76px !important;
+    max-height: 76px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    align-items: center !important;
+  }
+
+  .app-scanner-page .scanner-filter-buttons > :nth-child(7) {
+    white-space: nowrap !important;
+  }
+}
