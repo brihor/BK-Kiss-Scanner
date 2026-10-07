@@ -1,6 +1,7 @@
 import { sendSignalPushNotification } from "@/lib/pushNotifications";
 import { recordPerformanceSignal } from "@/lib/performanceStore";
 import { scanMarket } from "@/lib/scanner";
+import { getHigherTimeframeTrend } from "@/lib/trendFilter";
 import {
   addSignal,
   findSignal,
@@ -37,6 +38,56 @@ function isMarketClosed() {
   return fridayAfterClose || saturday || sundayBeforeOpen;
 }
 
+function isForexPair(pair: string) {
+  const symbol = pair.toUpperCase();
+
+  if (symbol.startsWith("XAU") || symbol.startsWith("XAG")) {
+    return false;
+  }
+
+  if (
+    symbol.startsWith("NAS100") ||
+    symbol.startsWith("US30") ||
+    symbol.startsWith("US_SPX500") ||
+    symbol.startsWith("SPX500")
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+async function passesTrendFilter(
+  pair: string,
+  direction: "BUY" | "SELL"
+) {
+  // Trend experiment applies to Forex only.
+  // Metals and indices keep their existing behavior.
+  if (!isForexPair(pair)) {
+    return true;
+  }
+
+  try {
+    const { trend } = await getHigherTimeframeTrend(pair);
+
+    if (direction === "BUY") {
+      return trend === "BULLISH";
+    }
+
+    if (direction === "SELL") {
+      return trend === "BEARISH";
+    }
+
+    return false;
+  } catch (error) {
+    console.error(`Trend filter skipped signal for ${pair}:`, error);
+
+    // Fail closed for Forex during the experiment.
+    // If trend cannot be confirmed, do not release the signal.
+    return false;
+  }
+}
+
 function withSignalAge(signals: Signal[], now: number) {
   return signals.map((signal) => ({
     ...signal,
@@ -61,11 +112,24 @@ export async function processSignals(): Promise<Signal[]> {
 
   const scannerSignals = await scanMarket();
 
-  const currentPairs = new Set(
-    scannerSignals.map((signal) => signal.pair)
-  );
+  const approvedSignals = [];
 
   for (const scannedSignal of scannerSignals) {
+    const approved = await passesTrendFilter(
+      scannedSignal.pair,
+      scannedSignal.direction
+    );
+
+    if (approved) {
+      approvedSignals.push(scannedSignal);
+    }
+  }
+
+  const currentPairs = new Set(
+    approvedSignals.map((signal) => signal.pair)
+  );
+
+  for (const scannedSignal of approvedSignals) {
     const existingSignal = await findSignal(scannedSignal.pair);
 
     if (!existingSignal) {
